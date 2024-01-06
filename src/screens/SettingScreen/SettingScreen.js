@@ -108,11 +108,12 @@ const SettingScreen = ({navigation}) => {
   const {settings, updateSettings} = usePomodoro();
 
   const labels = ['DI', 'LR', 'QA', 'QUANT', 'TA']; // Add or remove labels as necessary
-  const [textLength, setTextLength] = useState(0);
   const [inputLabel, setInputLabel] = useState(
     settings.currentInputLabel || '',
   );
+  
   const [isLabelSelected, setIsLabelSelected] = useState(false);
+  const [textLength, setTextLength] = useState(inputLabel.length);
 
   const [timerValues, setTimerValues] = useState({});
   // Use the global state instead of local state for these
@@ -171,6 +172,7 @@ const SettingScreen = ({navigation}) => {
       setIsLabelSelected(false);
     }
   };
+
 
   // Update the global settings when the local timerValues change
   useEffect(() => {
