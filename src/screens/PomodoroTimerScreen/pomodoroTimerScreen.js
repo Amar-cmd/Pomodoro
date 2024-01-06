@@ -11,6 +11,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import styles from './style';
 import {usePomodoro} from '../../context/PomodoroContext'; // Adjust the import path as necessary
+import Toast from 'react-native-simple-toast'; // Make sure to install this package
 
 const OptionButton = ({onPress, iconName, text}) => {
   return (
@@ -126,12 +127,13 @@ const PomodoroTimerScreen = ({navigation}) => {
 
   useEffect(() => {
     if (timerEnded) {
+      Toast.show('Break Time!', Toast.LONG);
+
       navigation.navigate('PomodoroBreak');
       setTimerEnded(false); // Reset the state
     }
   }, [timerEnded, navigation]); // Dependencies array includes timerEnded and navigation
 
-  
   // Effect to handle the timer
   useEffect(() => {
     if (isActive) {

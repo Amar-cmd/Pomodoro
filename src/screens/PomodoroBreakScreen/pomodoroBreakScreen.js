@@ -3,6 +3,8 @@ import {Text, View, StatusBar, TouchableOpacity} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {usePomodoro} from '../../context/PomodoroContext'; // Adjust the import path as necessary
+import Toast from 'react-native-simple-toast'; // Make sure to install this package
+
 import styles from './style';
 
 const PomodoroBreakScreen = ({navigation}) => {
@@ -11,6 +13,7 @@ const PomodoroBreakScreen = ({navigation}) => {
     minutes: '5',
     seconds: '0',
   }; // Fallback to default if not found
+  const isAutomaticBreakOn = settings.isAutomaticBreakOn || false;
 
   const [minutes, setMinutes] = useState(parseInt(shortBreakTimer.minutes));
   const [seconds, setSeconds] = useState(parseInt(shortBreakTimer.seconds));
@@ -24,8 +27,9 @@ const PomodoroBreakScreen = ({navigation}) => {
   const playTimer = () => {
     if (minutes === 0 && seconds === 0) {
       closeTimer();
+    } else {
+      setIsActive(true);
     }
-    setIsActive(true);
   };
 
   // Function to pause the timer
@@ -43,6 +47,7 @@ const PomodoroBreakScreen = ({navigation}) => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
+     Toast.show('Time To Study!', Toast.LONG);
 
     // Navigate back to the Pomodoro Timer screen
     navigation.reset({
@@ -56,16 +61,14 @@ const PomodoroBreakScreen = ({navigation}) => {
     setSeconds(prevSeconds => {
       if (prevSeconds === 0) {
         if (minutes === 0) {
-          // Timer finished
-          closeTimer();
+          pauseTimer();
+          setTimerEnded(true); // Set timerEnded to true when timer finishes
           return 0;
         } else {
-          // Move to the next minute
           setMinutes(prevMinutes => prevMinutes - 1);
           return 59;
         }
       } else {
-        // Decrement seconds
         return prevSeconds - 1;
       }
     });
@@ -81,15 +84,18 @@ const PomodoroBreakScreen = ({navigation}) => {
     return () => clearInterval(intervalRef.current);
   }, [isActive, seconds]);
 
-  // Navigate back to the Pomodoro Timer screen safely after the render
   useEffect(() => {
     if (timerEnded) {
-      navigation.reset({
-        index: 0,
-        routes: [{name: 'PomodoroTimer'}],
-      });
+      navigateToPomodoroTimer();
     }
   }, [timerEnded, navigation]);
+
+  useEffect(() => {
+    // Automatically start the timer if isAutomaticBreakOn is true
+    if (isAutomaticBreakOn) {
+      playTimer();
+    }
+  }, [isAutomaticBreakOn]);
 
   return (
     <View style={styles.container}>
