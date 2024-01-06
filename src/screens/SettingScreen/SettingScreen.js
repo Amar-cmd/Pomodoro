@@ -1,19 +1,23 @@
 import React, {useState, useRef, useCallback, useEffect} from 'react';
 import {View, TextInput, Text, TouchableOpacity, Switch} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { usePomodoro } from '../../context/PomodoroContext';
+import {usePomodoro} from '../../context/PomodoroContext';
 
-import {storeSettings} from '../../helpers/AsyncStorageHelpers'
+import {storeSettings} from '../../helpers/AsyncStorageHelpers';
 import styles from './style';
 import Toast from 'react-native-simple-toast'; // Make sure to install this package
 const MAX_LABEL_LENGTH = 40;
 
 const Cell = ({cellHeading, onValueChange, keyName}) => {
   const {settings, updateSettings} = usePomodoro();
-  const timerValue = settings[keyName];
 
-  const [minutes, setMinutes] = useState('25');
-  const [seconds, setSeconds] = useState('00');
+  // Safely get the timer values, defaulting to '25' and '00' if not found
+  const timerValue = settings[keyName] || {minutes: '25', seconds: '00'};
+
+  const [minutes, setMinutes] = useState(timerValue.minutes);
+  const [seconds, setSeconds] = useState(timerValue.seconds);
+
+
   const minutesInputRef = useRef(null);
   const secondsInputRef = useRef(null);
 
@@ -55,8 +59,8 @@ const Cell = ({cellHeading, onValueChange, keyName}) => {
           value={minutes}
           onChangeText={handleMinutesChange}
           onFocus={() => handleFocus(minutesInputRef)}
-          onSubmitEditing={handleMinutesSubmit}
-          onBlur={handleMinutesSubmit} // Set default value on blur
+          onEndEditing={handleMinutesSubmit} // Trigger submit when user finishes editing
+          onBlur={handleMinutesSubmit} // Also keep it on blur for safety
         />
         <Text style={styles.textValue}>:</Text>
         <TextInput
@@ -67,8 +71,8 @@ const Cell = ({cellHeading, onValueChange, keyName}) => {
           value={seconds}
           onChangeText={handleSecondsChange}
           onFocus={() => handleFocus(secondsInputRef)}
-          onSubmitEditing={handleSecondsSubmit}
-          onBlur={handleSecondsSubmit} // Set default value on blur
+          onEndEditing={handleSecondsSubmit} // Trigger submit when user finishes editing
+          onBlur={handleSecondsSubmit} // Also keep it on blur for safety
         />
       </View>
     </View>
@@ -101,7 +105,7 @@ const Option = ({title, onToggle, identifier}) => {
   );
 };
 
-const SettingScreen = ({ navigation }) => {
+const SettingScreen = ({navigation}) => {
   const {settings, updateSettings} = usePomodoro();
 
   const labels = ['DI', 'LR', 'QA', 'QUANT', 'TA']; // Add or remove labels as necessary
@@ -123,17 +127,22 @@ const SettingScreen = ({ navigation }) => {
     setTimerValues({...timerValues, [key]: values});
   };
 
-    const saveSettingsButtonPressed = async () => {
-      await storeSettings(settings);
-      Toast.show('Settings saved!', Toast.LONG);
+  const saveSettingsButtonPressed = async () => {
+    await storeSettings(settings);
+    Toast.show('Settings saved!', Toast.LONG);
+    navigation.reset({
+      index: 0,
+      routes: [{name: 'PomodoroTimer'}],
+    });
+  };
 
-      navigation.goBack()
-    };
-    
-    const goBackButtonPressed = () => {
-      navigation.goBack();
-    };
-    
+  const goBackButtonPressed = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{name: 'PomodoroTimer'}],
+    });
+  };
+
   const handleDefaultLabelPress = label => {
     setInputLabel(label); // Set the input text to the label
     setTextLength(label.length); // Update the character count
@@ -153,6 +162,19 @@ const SettingScreen = ({ navigation }) => {
     }
   };
 
+  // Update the global settings when the local timerValues change
+  useEffect(() => {
+    if (timerValues.pomodoro) {
+      updateSettings('pomodoroTimer', timerValues.pomodoro);
+    }
+    if (timerValues.shortBreak) {
+      updateSettings('shortBreakTimer', timerValues.shortBreak);
+    }
+    if (timerValues.longBreak) {
+      updateSettings('longBreakTimer', timerValues.longBreak);
+    }
+  }, [timerValues]);
+
   // Update the global state when local states change
   useEffect(() => {
     updateSettings('isVibrationOn', isVibrationOn);
@@ -166,6 +188,10 @@ const SettingScreen = ({ navigation }) => {
     updateSettings('isAutomaticBreakOn', isAutomaticBreakOn);
   }, [isAutomaticBreakOn]);
 
+  useEffect(() => {
+    console.log('Settings after update: ', settings);
+  }, [settings]);
+
   return (
     <View style={styles.container}>
       {/* Toolbar  */}
@@ -177,7 +203,9 @@ const SettingScreen = ({ navigation }) => {
         </TouchableOpacity>
 
         <Text style={styles.toolbarHeading}>Pomodoro Setting</Text>
-        <TouchableOpacity activeOpacity={0.8} onPress={saveSettingsButtonPressed}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={saveSettingsButtonPressed}>
           <View style={styles.toolbarIcon}>
             <Ionicons name="checkmark" size={30} color="#00818E" />
           </View>
@@ -188,15 +216,18 @@ const SettingScreen = ({ navigation }) => {
       <View style={styles.sectionOne}>
         <Cell
           cellHeading="Pomodoro Timer"
-          onValueChange={values => handleCellChange('pomodoro', values)}
+          onValueChange={values => handleCellChange('pomodoroTimer', values)}
+          keyName="pomodoroTimer"
         />
         <Cell
           cellHeading="Short Break Timer"
-          onValueChange={values => handleCellChange('shortBreak', values)}
+          onValueChange={values => handleCellChange('shortBreakTimer', values)}
+          keyName="shortBreakTimer"
         />
         <Cell
           cellHeading="Long Break Timer"
-          onValueChange={values => handleCellChange('longBreak', values)}
+          onValueChange={values => handleCellChange('longBreakTimer', values)}
+          keyName="longBreakTimer"
         />
       </View>
       {/* Section 2  */}

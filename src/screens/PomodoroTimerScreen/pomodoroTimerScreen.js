@@ -10,7 +10,7 @@ import {
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import styles from './style';
-import { usePomodoro } from '../../context/PomodoroContext'; // Adjust the import path as necessary
+import {usePomodoro} from '../../context/PomodoroContext'; // Adjust the import path as necessary
 
 const OptionButton = ({onPress, iconName, text}) => {
   return (
@@ -53,13 +53,16 @@ const PomodoroTimerScreen = ({navigation}) => {
   ];
 
   const {settings} = usePomodoro();
+  const {minutes: initialMinutes, seconds: initialSeconds} =
+    settings.pomodoroTimer;
 
-  const [minutes, setMinutes] = useState(25);
-  const [seconds, setSeconds] = useState(0);
+  const [minutes, setMinutes] = useState(parseInt(initialMinutes));
+  const [seconds, setSeconds] = useState(parseInt(initialSeconds));
+
   const [isActive, setIsActive] = useState(false);
   const [rounds, setRounds] = useState(0); // State to track completed rounds
   const [isModalVisible, setModalVisible] = useState(false); // State for modal visibility
-  
+
   const currentLabel = settings.currentInputLabel || 'Label'; // Default to 'Label' if not set
 
   // Using a ref to track the interval ID
@@ -67,9 +70,17 @@ const PomodoroTimerScreen = ({navigation}) => {
 
   // Reset timer to initial state
   const resetTimer = () => {
-    setMinutes(25);
-    setSeconds(0);
+    setMinutes(parseInt(initialMinutes));
+    setSeconds(parseInt(initialSeconds));
   };
+
+  // Effect to handle timer settings change
+  useEffect(() => {
+    if (!isActive) {
+      setMinutes(parseInt(initialMinutes));
+      setSeconds(parseInt(initialSeconds));
+    }
+  }, [initialMinutes, initialSeconds]);
 
   // Function to start the timer
   const playTimer = () => {
@@ -119,7 +130,7 @@ const PomodoroTimerScreen = ({navigation}) => {
       clearInterval(intervalRef.current);
     }
     return () => clearInterval(intervalRef.current);
-  }, [isActive]); // Only re-run the effect if isActive changes
+  }, [isActive, seconds]);
 
   return (
     <View style={styles.container}>
@@ -136,7 +147,7 @@ const PomodoroTimerScreen = ({navigation}) => {
       <View style={styles.body}>
         <View style={styles.pomodoroInfo}>
           <Text style={styles.label}>{currentLabel}</Text>
-          <Text style={styles.rounds}>{rounds}/6</Text>
+          <Text style={styles.rounds}>{rounds} Sessions</Text>
         </View>
         <View style={styles.pomodoroTimerContainer}>
           <Text style={styles.minutes}>{String(minutes).padStart(2, '0')}</Text>
