@@ -17,7 +17,6 @@ const Cell = ({cellHeading, onValueChange, keyName}) => {
   const [minutes, setMinutes] = useState(timerValue.minutes);
   const [seconds, setSeconds] = useState(timerValue.seconds);
 
-
   const minutesInputRef = useRef(null);
   const secondsInputRef = useRef(null);
 
@@ -110,7 +109,9 @@ const SettingScreen = ({navigation}) => {
 
   const labels = ['DI', 'LR', 'QA', 'QUANT', 'TA']; // Add or remove labels as necessary
   const [textLength, setTextLength] = useState(0);
-  const [inputLabel, setInputLabel] = useState('');
+  const [inputLabel, setInputLabel] = useState(
+    settings.currentInputLabel || '',
+  );
   const [isLabelSelected, setIsLabelSelected] = useState(false);
 
   const [timerValues, setTimerValues] = useState({});
@@ -128,13 +129,15 @@ const SettingScreen = ({navigation}) => {
   };
 
   const saveSettingsButtonPressed = async () => {
-    await storeSettings(settings);
-    Toast.show('Settings saved!', Toast.LONG);
-    navigation.reset({
-      index: 0,
-      routes: [{name: 'PomodoroTimer'}],
-    });
-  };
+     handleLabelSubmit(); 
+     await storeSettings(settings);
+     Toast.show('Settings saved!', Toast.LONG);
+     navigation.reset({
+       index: 0,
+       routes: [{name: 'PomodoroTimer'}],
+     });
+   };
+
 
   const goBackButtonPressed = () => {
     navigation.reset({
@@ -151,9 +154,16 @@ const SettingScreen = ({navigation}) => {
     console.log(label); // Log the label to the console
   };
 
+  const handleLabelSubmit = () => {
+    if (!isLabelSelected) {
+      // Only update if it's a custom label
+      updateSettings('currentInputLabel', inputLabel);
+    }
+  };
+
   // Function to handle text input changes
   const handleInputChange = text => {
-    setInputLabel(text);
+    setInputLabel(text); // Update the input label with user input
     setTextLength(text.length); // Update character count when typing
 
     // If the user starts typing, assume they are not using the default labels
@@ -174,6 +184,12 @@ const SettingScreen = ({navigation}) => {
       updateSettings('longBreakTimer', timerValues.longBreak);
     }
   }, [timerValues]);
+
+  useEffect(() => {
+    if (settings.currentInputLabel !== inputLabel) {
+      setInputLabel(settings.currentInputLabel || '');
+    }
+  }, [settings.currentInputLabel]);
 
   // Update the global state when local states change
   useEffect(() => {
@@ -238,7 +254,8 @@ const SettingScreen = ({navigation}) => {
           placeholder="Add Task"
           maxLength={MAX_LABEL_LENGTH}
           onChangeText={handleInputChange} // Use the updated handleInputChange
-          value={inputLabel}
+          value={inputLabel} // Display the current input label
+          onBlur={handleLabelSubmit}
         />
         <Text
           style={
