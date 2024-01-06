@@ -62,6 +62,7 @@ const PomodoroTimerScreen = ({navigation}) => {
   const [isActive, setIsActive] = useState(false);
   const [rounds, setRounds] = useState(0); // State to track completed rounds
   const [isModalVisible, setModalVisible] = useState(false); // State for modal visibility
+  const [timerEnded, setTimerEnded] = useState(false); // New state to track if timer ended
 
   const currentLabel = settings.currentInputLabel || 'Label'; // Default to 'Label' if not set
 
@@ -109,6 +110,7 @@ const PomodoroTimerScreen = ({navigation}) => {
           // Timer finished
           pauseTimer();
           setRounds(prevRounds => prevRounds + 1); // Increase rounds by 1
+          setTimerEnded(true); // Update state when timer ends instead of navigating
           return 0;
         } else {
           // Move to the next minute
@@ -122,6 +124,14 @@ const PomodoroTimerScreen = ({navigation}) => {
     });
   };
 
+  useEffect(() => {
+    if (timerEnded) {
+      navigation.navigate('PomodoroBreak');
+      setTimerEnded(false); // Reset the state
+    }
+  }, [timerEnded, navigation]); // Dependencies array includes timerEnded and navigation
+
+  
   // Effect to handle the timer
   useEffect(() => {
     if (isActive) {
@@ -129,7 +139,7 @@ const PomodoroTimerScreen = ({navigation}) => {
     } else if (!isActive && seconds !== 0) {
       clearInterval(intervalRef.current);
     }
-    return () => clearInterval(intervalRef.current);
+    return () => clearInterval(intervalRef.current); // Cleanup on unmount
   }, [isActive, seconds]);
 
   return (
