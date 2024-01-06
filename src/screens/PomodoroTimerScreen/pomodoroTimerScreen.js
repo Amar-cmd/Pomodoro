@@ -36,7 +36,7 @@ const PomodoroTimerScreen = ({navigation}) => {
       key: '2',
       text: 'Settings',
       iconName: 'settings',
-      onPress: () => console.log('Settings Pressed!'),
+      onPress: () => navigation.navigate('SettingScreen'),
     },
     {
       key: '3',
