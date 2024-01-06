@@ -2,12 +2,20 @@ import React, {useState, useEffect, useRef} from 'react';
 import {Text, View, StatusBar, TouchableOpacity} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {usePomodoro} from '../../context/PomodoroContext'; // Adjust the import path as necessary
 import styles from './style';
 
 const PomodoroBreakScreen = ({navigation}) => {
-  const [minutes, setMinutes] = useState(5);
-  const [seconds, setSeconds] = useState(0);
+  const {settings} = usePomodoro();
+  const shortBreakTimer = settings.shortBreakTimer || {
+    minutes: '5',
+    seconds: '0',
+  }; // Fallback to default if not found
+
+  const [minutes, setMinutes] = useState(parseInt(shortBreakTimer.minutes));
+  const [seconds, setSeconds] = useState(parseInt(shortBreakTimer.seconds));
   const [isActive, setIsActive] = useState(false);
+  const [timerEnded, setTimerEnded] = useState(false);
 
   // Using a ref to track the interval ID
   const intervalRef = useRef(null);
@@ -26,9 +34,17 @@ const PomodoroBreakScreen = ({navigation}) => {
   };
 
   const closeTimer = () => {
-    setMinutes(5);
-    setSeconds(0);
-    // navigation.goBack();
+    setIsActive(false);
+    setTimerEnded(true);
+  };
+
+  const navigateToPomodoroTimer = () => {
+    // Ensure the timer is not running
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    // Navigate back to the Pomodoro Timer screen
     navigation.reset({
       index: 0,
       routes: [{name: 'PomodoroTimer'}],
@@ -41,7 +57,7 @@ const PomodoroBreakScreen = ({navigation}) => {
       if (prevSeconds === 0) {
         if (minutes === 0) {
           // Timer finished
-          pauseTimer();
+          closeTimer();
           return 0;
         } else {
           // Move to the next minute
@@ -63,7 +79,17 @@ const PomodoroBreakScreen = ({navigation}) => {
       clearInterval(intervalRef.current);
     }
     return () => clearInterval(intervalRef.current);
-  }, [isActive]); // Only re-run the effect if isActive changes
+  }, [isActive, seconds]);
+
+  // Navigate back to the Pomodoro Timer screen safely after the render
+  useEffect(() => {
+    if (timerEnded) {
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'PomodoroTimer'}],
+      });
+    }
+  }, [timerEnded, navigation]);
 
   return (
     <View style={styles.container}>
