@@ -10,7 +10,7 @@ import {
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import styles from './style';
-
+import { usePomodoro } from '../../context/PomodoroContext'; // Adjust the import path as necessary
 
 const OptionButton = ({onPress, iconName, text}) => {
   return (
@@ -24,7 +24,6 @@ const OptionButton = ({onPress, iconName, text}) => {
 };
 
 const PomodoroTimerScreen = ({navigation}) => {
-
   const buttons = [
     {
       key: '1',
@@ -53,12 +52,15 @@ const PomodoroTimerScreen = ({navigation}) => {
     // Add more items as needed
   ];
 
+  const {settings} = usePomodoro();
 
   const [minutes, setMinutes] = useState(25);
   const [seconds, setSeconds] = useState(0);
   const [isActive, setIsActive] = useState(false);
   const [rounds, setRounds] = useState(0); // State to track completed rounds
   const [isModalVisible, setModalVisible] = useState(false); // State for modal visibility
+  
+  const currentLabel = settings.currentInputLabel || 'Label'; // Default to 'Label' if not set
 
   // Using a ref to track the interval ID
   const intervalRef = useRef(null);
@@ -133,7 +135,7 @@ const PomodoroTimerScreen = ({navigation}) => {
       </View>
       <View style={styles.body}>
         <View style={styles.pomodoroInfo}>
-          <Text style={styles.label}>Label</Text>
+          <Text style={styles.label}>{currentLabel}</Text>
           <Text style={styles.rounds}>{rounds}/6</Text>
         </View>
         <View style={styles.pomodoroTimerContainer}>
@@ -186,18 +188,18 @@ const PomodoroTimerScreen = ({navigation}) => {
             <Text style={styles.toolbarHeading}>Menu</Text>
             <Text style={{paddingHorizontal: 30}}></Text>
           </View>
-            <FlatList
-              data={buttons}
-              renderItem={({item}) => (
-                <OptionButton
-                  onPress={item.onPress}
-                  iconName={item.iconName}
-                  text={item.text}
-                />
-              )}
-              keyExtractor={item => item.key}
-              numColumns={2} // Set the number of columns
-            />
+          <FlatList
+            data={buttons}
+            renderItem={({item}) => (
+              <OptionButton
+                onPress={item.onPress}
+                iconName={item.iconName}
+                text={item.text}
+              />
+            )}
+            keyExtractor={item => item.key}
+            numColumns={2} // Set the number of columns
+          />
         </View>
       </Modal>
     </View>

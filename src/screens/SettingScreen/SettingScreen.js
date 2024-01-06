@@ -1,11 +1,15 @@
-import React, {useState, useRef, useCallback} from 'react';
+import React, {useState, useRef, useCallback, useEffect} from 'react';
 import {View, TextInput, Text, TouchableOpacity, Switch} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import { usePomodoro } from '../../context/PomodoroContext';
+import {storeSettings} from '../../helpers/AsyncStorageHelpers'
 import styles from './style';
 const MAX_LABEL_LENGTH = 40;
 
-const Cell = ({cellHeading, onValueChange}) => {
+const Cell = ({cellHeading, onValueChange, keyName}) => {
+  const {settings, updateSettings} = usePomodoro();
+  const timerValue = settings[keyName];
+
   const [minutes, setMinutes] = useState('25');
   const [seconds, setSeconds] = useState('00');
   const minutesInputRef = useRef(null);
@@ -28,13 +32,13 @@ const Cell = ({cellHeading, onValueChange}) => {
   const handleMinutesSubmit = () => {
     const newMinutes = minutes || '25';
     setMinutes(newMinutes);
-    onValueChange({minutes: newMinutes, seconds});
+    updateSettings(keyName, {...timerValue, minutes: newMinutes});
   };
 
   const handleSecondsSubmit = () => {
     const newSeconds = seconds || '00';
     setSeconds(newSeconds);
-    onValueChange({minutes, seconds: newSeconds});
+    updateSettings(keyName, {...timerValue, seconds: newSeconds});
   };
 
   return (
@@ -69,11 +73,16 @@ const Cell = ({cellHeading, onValueChange}) => {
   );
 };
 
-const Option = ({title, value, onToggle, identifier}) => {
-  // Debugging: Log when the value changes
+const Option = ({title, onToggle, identifier}) => {
+  const {settings, updateSettings} = usePomodoro();
+  const value = settings[identifier];
+
   const handleToggle = newValue => {
     console.log(`${identifier} ${newValue ? 'True' : 'False'}`);
-    onToggle(newValue);
+    updateSettings(identifier, newValue);
+    if (onToggle) {
+      onToggle(newValue); // Call the onToggle prop if it's provided
+    }
   };
 
   return (
@@ -89,28 +98,44 @@ const Option = ({title, value, onToggle, identifier}) => {
     </View>
   );
 };
-const SettingScreen = ({navigation}) => {
+
+const SettingScreen = ({ navigation }) => {
+  const {settings, updateSettings} = usePomodoro();
+
   const labels = ['DI', 'LR', 'QA', 'QUANT', 'TA']; // Add or remove labels as necessary
   const [textLength, setTextLength] = useState(0);
   const [inputLabel, setInputLabel] = useState('');
   const [isLabelSelected, setIsLabelSelected] = useState(false);
 
   const [timerValues, setTimerValues] = useState({});
-    const [isVibrationOn, setIsVibrationOn] = useState(false);
-      const [isSilentNotificationOn, setIsSilentNotificationOn] =
-        useState(false);
-      const [isAutomaticBreakOn, setIsAutomaticBreakOn] = useState(false);
-
-  const toggleSwitch = () => setIsVibrationOn(previousState => !previousState);
+  // Use the global state instead of local state for these
+  const [isVibrationOn, setIsVibrationOn] = useState(settings.isVibrationOn);
+  const [isSilentNotificationOn, setIsSilentNotificationOn] = useState(
+    settings.isSilentNotificationOn,
+  );
+  const [isAutomaticBreakOn, setIsAutomaticBreakOn] = useState(
+    settings.isAutomaticBreakOn,
+  );
 
   const handleCellChange = (key, values) => {
     setTimerValues({...timerValues, [key]: values});
   };
 
+    const saveSettingsButtonPressed = async () => {
+      await storeSettings(settings);
+      console.log('Settings saved!');
+      navigation.goBack()
+    };
+    
+    const goBackButtonPressed = () => {
+      navigation.goBack();
+    };
+    
   const handleDefaultLabelPress = label => {
     setInputLabel(label); // Set the input text to the label
     setTextLength(label.length); // Update the character count
     setIsLabelSelected(true); // Indicate that a label was just selected
+    updateSettings('currentInputLabel', label); // Update globally
     console.log(label); // Log the label to the console
   };
 
@@ -125,18 +150,35 @@ const SettingScreen = ({navigation}) => {
     }
   };
 
+  // Update the global state when local states change
+  useEffect(() => {
+    updateSettings('isVibrationOn', isVibrationOn);
+  }, [isVibrationOn]);
+
+  useEffect(() => {
+    updateSettings('isSilentNotificationOn', isSilentNotificationOn);
+  }, [isSilentNotificationOn]);
+
+  useEffect(() => {
+    updateSettings('isAutomaticBreakOn', isAutomaticBreakOn);
+  }, [isAutomaticBreakOn]);
+
   return (
     <View style={styles.container}>
       {/* Toolbar  */}
       <View style={styles.toolbar}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={goBackButtonPressed}>
           <View style={styles.toolbarIcon}>
             <Ionicons name="chevron-back-outline" size={30} color="#00818E" />
           </View>
         </TouchableOpacity>
 
         <Text style={styles.toolbarHeading}>Pomodoro Setting</Text>
-        <Text></Text>
+        <TouchableOpacity activeOpacity={0.8} onPress={saveSettingsButtonPressed}>
+          <View style={styles.toolbarIcon}>
+            <Ionicons name="checkmark" size={30} color="#00818E" />
+          </View>
+        </TouchableOpacity>
       </View>
 
       {/* Section One  */}
