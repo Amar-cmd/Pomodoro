@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "949993845744",
+    "project_id": "pomodoro-2b81d",
+    "storage_bucket": "pomodoro-2b81d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:949993845744:android:611a937dff0c003f80e335",
+        "android_client_info": {
+          "package_name": "com.pomodoro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGgJKRGN8sBgNusP6H6bkdovRxXD6Kz3Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
