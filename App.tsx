@@ -10,12 +10,10 @@ import {
   View,
 } from 'react-native';
 
-import {
-  Colors,
-} from 'react-native/Libraries/NewAppScreen';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 import {NavigationContainer} from '@react-navigation/native';
- import {PomodoroProvider} from './src/context/PomodoroContext'
+import {PomodoroProvider} from './src/context/PomodoroContext';
 import AppNavigator from './src/AppNavigator'; // Adjust the path as necessary
 
 type SectionProps = PropsWithChildren<{
@@ -30,17 +28,17 @@ function App(): React.JSX.Element {
   };
 
   return (
-    <PomodoroProvider>
-      <NavigationContainer>
-        <SafeAreaView style={{flex: 1}}>
-          <StatusBar
-            barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-            backgroundColor={backgroundStyle.backgroundColor}
-          />
-          <AppNavigator />
-        </SafeAreaView>
-      </NavigationContainer>
-    </PomodoroProvider>
+      <PomodoroProvider>
+        <NavigationContainer>
+          <SafeAreaView style={{flex: 1}}>
+            <StatusBar
+              barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+              backgroundColor={backgroundStyle.backgroundColor}
+            />
+            <AppNavigator />
+          </SafeAreaView>
+        </NavigationContainer>
+      </PomodoroProvider>
   );
 }
 

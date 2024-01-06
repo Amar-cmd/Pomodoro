@@ -27,7 +27,6 @@ const styles = StyleSheet.create({
     // backgroundColor: '#9002',
   },
   cell: {
-    // backgroundColor: '#a1f791',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

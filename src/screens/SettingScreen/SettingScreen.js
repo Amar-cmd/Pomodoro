@@ -2,8 +2,10 @@ import React, {useState, useRef, useCallback, useEffect} from 'react';
 import {View, TextInput, Text, TouchableOpacity, Switch} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { usePomodoro } from '../../context/PomodoroContext';
+
 import {storeSettings} from '../../helpers/AsyncStorageHelpers'
 import styles from './style';
+import Toast from 'react-native-simple-toast'; // Make sure to install this package
 const MAX_LABEL_LENGTH = 40;
 
 const Cell = ({cellHeading, onValueChange, keyName}) => {
@@ -123,7 +125,8 @@ const SettingScreen = ({ navigation }) => {
 
     const saveSettingsButtonPressed = async () => {
       await storeSettings(settings);
-      console.log('Settings saved!');
+      Toast.show('Settings saved!', Toast.LONG);
+
       navigation.goBack()
     };
     
