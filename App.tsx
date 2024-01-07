@@ -14,6 +14,7 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 import {NavigationContainer} from '@react-navigation/native';
 import {PomodoroProvider} from './src/context/PomodoroContext';
+import {UserProvider} from './src/context/UserContext';
 import AppNavigator from './src/AppNavigator'; // Adjust the path as necessary
 
 type SectionProps = PropsWithChildren<{
@@ -28,6 +29,7 @@ function App(): React.JSX.Element {
   };
 
   return (
+    <UserProvider>
       <PomodoroProvider>
         <NavigationContainer>
           <SafeAreaView style={{flex: 1}}>
@@ -39,6 +41,7 @@ function App(): React.JSX.Element {
           </SafeAreaView>
         </NavigationContainer>
       </PomodoroProvider>
+    </UserProvider>
   );
 }
 

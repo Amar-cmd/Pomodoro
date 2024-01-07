@@ -6,35 +6,55 @@ import SettingScreen from './screens/SettingScreen/SettingScreen';
 import LoginScreen from './screens/LoginScreen/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen/RegisterScreen';
 import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+
 import CatMockScreen from './screens/CatMockScreen/CatMockScreen';
 import AnalyticsScreen from './screens/AnalyticsScreen/AnalyticsScreen';
-
+import {useUser} from './context/UserContext';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const {setUser} = useUser(); // Use the setUser function from context
+
+  // Fetch user data from Firestore
+  const fetchUserData = async userID => {
+    try {
+      const userRef = firestore().collection('users').doc(userID);
+      const doc = await userRef.get();
+      if (doc.exists) {
+        return doc.data();
+      } else {
+        console.log('No such user!');
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching user's data:", error);
+    }
+  };
 
   useEffect(() => {
     // Listen for authentication state to change.
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    const subscriber = auth().onAuthStateChanged(async firebaseUser => {
+      if (firebaseUser) {
+        // Fetch and set user data if authenticated
+        const userData = await fetchUserData(firebaseUser.uid);
+        setUser(userData); // Set user data globally
+        setIsSignedIn(true);
+      } else {
+        // Reset user data and sign-in status if not authenticated
+        setUser(null);
+        setIsSignedIn(false);
+      }
+    });
     return subscriber; // unsubscribe on unmount
   }, []);
-
-  // Handle the user state change
-  function onAuthStateChanged(user) {
-    setIsSignedIn(!!user); // true if user is logged in, false otherwise
-  }
 
   return (
     <Stack.Navigator>
       {isSignedIn ? (
         // Stack for logged in users
         <>
-          <Stack.Screen
-            name="AnalyticsScreen"
-            component={AnalyticsScreen}
-            options={{headerShown: false}}
-          />
           <Stack.Screen
             name="PomodoroTimer"
             component={PomodoroTimerScreen}
@@ -55,7 +75,11 @@ const AppNavigator = () => {
             component={CatMockScreen}
             options={{headerShown: false}}
           />
-
+          <Stack.Screen
+            name="AnalyticsScreen"
+            component={AnalyticsScreen}
+            options={{headerShown: false}}
+          />
           {/* Add more screens for logged in user here */}
         </>
       ) : (

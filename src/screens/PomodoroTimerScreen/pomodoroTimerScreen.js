@@ -13,7 +13,8 @@ import styles from './style';
 import {usePomodoro} from '../../context/PomodoroContext'; // Adjust the import path as necessary
 import Toast from 'react-native-simple-toast'; // Make sure to install this package
 import auth from '@react-native-firebase/auth';
-
+import firestore from '@react-native-firebase/firestore';
+import {useUser} from '../../context/UserContext'
 const handleLogout = () => {
   auth()
     .signOut()
@@ -75,6 +76,10 @@ const PomodoroTimerScreen = ({navigation}) => {
   ];
 
   const {settings} = usePomodoro();
+  const {user} = useUser();
+
+  const currentUserId = user.uid;
+
   const {minutes: initialMinutes, seconds: initialSeconds} =
     settings.pomodoroTimer;
 
@@ -146,16 +151,6 @@ const PomodoroTimerScreen = ({navigation}) => {
     });
   };
 
-  
-  useEffect(() => {
-    if (timerEnded) {
-      Toast.show('Break Time!', Toast.LONG);
-
-      navigation.navigate('PomodoroBreak');
-      setTimerEnded(false); // Reset the state
-    }
-  }, [timerEnded, navigation]); // Dependencies array includes timerEnded and navigation
-
   // Effect to handle the timer
   useEffect(() => {
     if (isActive) {
@@ -165,6 +160,105 @@ const PomodoroTimerScreen = ({navigation}) => {
     }
     return () => clearInterval(intervalRef.current); // Cleanup on unmount
   }, [isActive, seconds]);
+
+  //! Firestore functions
+  // Function to be called when a timer session ends
+  const onTimerEnd = (label, type) => {
+    const endTime = Date.now(); // End time is the current time
+    const sessionDuration = initialMinutes * 60 * 1000; // Duration of the session in milliseconds
+
+    // Add the session to the user's pomodoros subcollection
+    const pomodoroRef = firestore()
+      .collection('users')
+      .doc(currentUserId)
+      .collection('pomodoros')
+      .doc();
+
+    pomodoroRef.set({
+      startTime: firestore.Timestamp.fromMillis(endTime - sessionDuration),
+      endTime: firestore.Timestamp.fromMillis(endTime),
+      label,
+      type,
+    });
+
+    // Update the aggregates
+    const totalTime = sessionDuration / 60000; // Convert from milliseconds to minutes
+    updateAggregate('daily', totalTime, label, endTime - sessionDuration);
+    updateAggregate('weekly', totalTime, label, endTime - sessionDuration);
+    updateAggregate('monthly', totalTime, label, endTime - sessionDuration);
+  };
+
+
+  // Function to update daily, weekly, and monthly aggregates
+  const updateAggregate = (aggregateType, time, label, startTime) => {
+    const userRef = firestore().collection('users').doc(currentUserId);
+    const date = new Date(startTime);
+    let periodRef;
+
+    switch (aggregateType) {
+      case 'daily':
+        periodRef = `${date.getFullYear()}-${
+          date.getMonth() + 1
+        }-${date.getDate()}`;
+        break;
+      case 'weekly':
+        const weekNumber = getWeekNumber(new Date(startTime));
+        periodRef = `${date.getFullYear()}-W${weekNumber}`;
+        break;
+      case 'monthly':
+        periodRef = `${date.getFullYear()}-${date.getMonth() + 1}`;
+        break;
+    }
+
+    const aggregateRef = userRef
+      .collection('aggregates')
+      .doc(aggregateType)
+      .collection(periodRef)
+      .doc('summary');
+
+    // Update or create the aggregate document
+    aggregateRef.get().then(doc => {
+      if (doc.exists) {
+        // If document exists, increment totalSessions and totalTime and update labels
+        aggregateRef.update({
+          totalSessions: firestore.FieldValue.increment(1),
+          totalTime: firestore.FieldValue.increment(time),
+          [`labels.${label}`]: firestore.FieldValue.increment(time),
+        });
+      } else {
+        // If document does not exist, set initial values
+        aggregateRef.set({
+          totalSessions: 1,
+          totalTime: time,
+          labels: {[label]: time},
+        });
+      }
+    });
+  };
+
+  function getWeekNumber(date) {
+    const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+    const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+
+    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+  }
+
+
+  useEffect(() => {
+    if (timerEnded) {
+      // Assuming 'work' as the type
+      onTimerEnd(currentLabel, 'work');
+
+      // Show a toast notification
+      Toast.show('Break Time!', Toast.LONG);
+
+      // Navigate to the PomodoroBreak screen
+      navigation.navigate('PomodoroBreak');
+
+      // Reset the state
+      setTimerEnded(false);
+    }
+  }, [timerEnded, currentLabel, navigation]); // Dependencies array includes timerEnded, currentLabel, and navigation
 
   return (
     <View style={styles.container}>
