@@ -14,11 +14,10 @@ const Cell = ({cellHeading, time}) => {
   );
 };
 
-const CatMockScreen = () => {
-  // Assuming 1 minute for each section for demonstration
-  const initialVarcTime = 1; // Update to 60 for a full minute
-  const initialDilrTime = 1; // Update to 60 for a full minute
-  const initialQaTime = 1; // Update to 60 for a full minute
+const CatMockScreen = ({navigation}) => {
+  const initialVarcTime = 2400; 
+  const initialDilrTime = 2400; 
+  const initialQaTime = 2400; 
 
   const [varcTime, setVarcTime] = useState(initialVarcTime);
   const [dilrTime, setDilrTime] = useState(initialDilrTime);
@@ -59,6 +58,12 @@ const CatMockScreen = () => {
     )}`;
   };
 
+  const goBack = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{name: 'PomodoroTimer'}],
+    });
+  };
   useEffect(() => {
     let interval = null;
 
@@ -94,9 +99,11 @@ const CatMockScreen = () => {
     <View style={styles.container}>
       <View style={styles.toolbar}>
         {!activeTimer ? (
-          <View style={styles.toolbarIcon}>
-            <Ionicons name="chevron-back-outline" size={30} color="#00818E" />
-          </View>
+          <TouchableOpacity onPress={goBack} activeOpacity={0.8}>
+            <View style={styles.toolbarIcon}>
+              <Ionicons name="chevron-back-outline" size={30} color="#00818E" />
+            </View>
+          </TouchableOpacity>
         ) : (
           <View style={styles.toolbarIcon}>
             <Text style={styles.toolbarHeading}></Text>
