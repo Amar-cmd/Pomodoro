@@ -14,6 +14,20 @@ import {usePomodoro} from '../../context/PomodoroContext'; // Adjust the import 
 import Toast from 'react-native-simple-toast'; // Make sure to install this package
 import auth from '@react-native-firebase/auth';
 
+const handleLogout = () => {
+  auth()
+    .signOut()
+    .then(() => {
+      console.log('User signed out!');
+      // Optionally: navigate the user to the login screen
+    })
+    .catch(error => {
+      console.error('Logout error:', error);
+      Toast.show('Logout failed. Please try again.', Toast.LONG);
+    });
+};
+
+
 const OptionButton = ({onPress, iconName, text}) => {
   return (
     <TouchableOpacity onPress={onPress} style={styles.buttonContainer}>
@@ -132,23 +146,7 @@ const PomodoroTimerScreen = ({navigation}) => {
     });
   };
 
-  const handleLogout = () => {
-    auth()
-      .signOut()
-      .then(() => {
-        console.log('User signed out!');
-        // Optionally: navigate the user to the login screen
-        navigation.reset({
-          index: 0,
-          routes: [{name: 'LoginScreen'}],
-        });
-      })
-      .catch(error => {
-        console.error('Logout error:', error);
-        Toast.show('Logout failed. Please try again.', Toast.LONG);
-      });
-  };
-
+  
   useEffect(() => {
     if (timerEnded) {
       Toast.show('Break Time!', Toast.LONG);

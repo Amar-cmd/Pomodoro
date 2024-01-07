@@ -4,7 +4,11 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
+import auth from '@react-native-firebase/auth';
+import Toast from 'react-native-simple-toast'; // Make sure to install this package
+
 import styles from './style';
 
 const LoginScreen = ({navigation}) => {
@@ -12,8 +16,19 @@ const LoginScreen = ({navigation}) => {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    // Handle login logic here
+    auth()
+      .signInWithEmailAndPassword(email, password)
+      .then(() => {
+        Toast.show('Signin Successful!', Toast.SHORT);
+
+        // You can navigate to another screen here or update state as needed
+      })
+      .catch(error => {
+        console.error('Login error:', error);
+        // Handle the error, possibly show a message to the user
+      });
   };
+
 
   return (
     <View style={styles.container}>
