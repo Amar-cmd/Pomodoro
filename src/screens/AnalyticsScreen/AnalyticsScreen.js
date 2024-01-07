@@ -23,6 +23,8 @@ const AnalyticsScreen = ({navigation}) => {
   const [todayTime, setTodayTime] = useState('00:00:00');
   const [totalStudySessions, setTotalStudySessions] = useState(0);
   const [totalStudyTime, setTotalStudyTime] = useState(0);
+  const [totalBreakSessions, setTotalBreakSessions] = useState(0);
+  const [totalBreakTime, setTotalBreakTime] = useState(0);
 
   const goBack = () => {
     navigation.reset({
@@ -49,21 +51,22 @@ const AnalyticsScreen = ({navigation}) => {
        .collection(dailyDateString)
        .doc('summary');
 
-     const weeklyRef = firestore()
-       .collection('users')
-       .doc(currentUser.uid)
-       .collection('aggregates')
-       .doc('weekly')
-       .collection(weeklyDateString)
-       .doc('summary');
+    //  !Weekly and Monthly data if needed in future 
+    //  const weeklyRef = firestore()
+    //    .collection('users')
+    //    .doc(currentUser.uid)
+    //    .collection('aggregates')
+    //    .doc('weekly')
+    //    .collection(weeklyDateString)
+    //    .doc('summary');
 
-     const monthlyRef = firestore()
-       .collection('users')
-       .doc(currentUser.uid)
-       .collection('aggregates')
-       .doc('monthly')
-       .collection(monthlyDateString)
-       .doc('summary');
+    //  const monthlyRef = firestore()
+    //    .collection('users')
+    //    .doc(currentUser.uid)
+    //    .collection('aggregates')
+    //    .doc('monthly')
+    //    .collection(monthlyDateString)
+    //    .doc('summary');
 
      // Fetch the daily data
      dailyRef
@@ -88,37 +91,10 @@ const AnalyticsScreen = ({navigation}) => {
          const data = doc.data();
          setTotalStudySessions(data.overallStudySessions.toString());
          setTotalStudyTime(formatTime(data.overallStudyTime));
+         setTotalBreakSessions(data.overallBreakSessions.toString());
+         setTotalBreakTime(formatTime(data.overallBreakTime));
        }
      });
-     //! Fetch the weekly data
-     //  weeklyRef
-     //    .get()
-     //    .then(doc => {
-     //      if (doc.exists) {
-     //        const data = doc.data();
-     //        // Process weekly data...
-     //      } else {
-     //        console.log('No weekly data for this week');
-     //      }
-     //    })
-     //    .catch(error => {
-     //      console.error('Error fetching weekly data: ', error);
-     //    });
-
-     // Fetch the monthly data
-     //  monthlyRef
-     //    .get()
-     //    .then(doc => {
-     //      if (doc.exists) {
-     //        const data = doc.data();
-     //        // Process monthly data...
-     //      } else {
-     //        console.log('No monthly data for this month');
-     //      }
-     //    })
-     //    .catch(error => {
-     //      console.error('Error fetching monthly data: ', error);
-     //    });
    }
  }, [currentUser]);
 
@@ -151,8 +127,8 @@ const AnalyticsScreen = ({navigation}) => {
           <Text style={styles.total}>Total</Text>
           <SessionInfo heading="Study Sessions" score={totalStudySessions} />
           <SessionInfo heading="Study Time" score={totalStudyTime} />
-          <SessionInfo heading="Break Session" score="100" />
-          <SessionInfo heading="Break Time" score="60:00" />
+          <SessionInfo heading="Break Session" score={totalBreakSessions} />
+          <SessionInfo heading="Break Time" score={totalBreakTime} />
         </View>
       </ScrollView>
     </>

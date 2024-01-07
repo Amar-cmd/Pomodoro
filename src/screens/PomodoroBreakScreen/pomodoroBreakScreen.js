@@ -4,11 +4,14 @@ import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {usePomodoro} from '../../context/PomodoroContext'; // Adjust the import path as necessary
 import Toast from 'react-native-simple-toast'; // Make sure to install this package
+import firestore from '@react-native-firebase/firestore';
+import {useUser} from '../../context/UserContext';
 
 import styles from './style';
 
 const PomodoroBreakScreen = ({navigation}) => {
-  const {settings} = usePomodoro();
+  const { settings } = usePomodoro();
+  const {user} = useUser()
   const shortBreakTimer = settings.shortBreakTimer || {
     minutes: '5',
     seconds: '0',
@@ -42,6 +45,17 @@ const PomodoroBreakScreen = ({navigation}) => {
     setTimerEnded(true);
   };
 
+  const updateBreakSession = () => {
+    const currentUserId = user.uid
+    const userRef = firestore().collection('users').doc(currentUserId);
+    const breakDuration = parseInt(shortBreakTimer.minutes) * 60; // Convert minutes to seconds
+
+    userRef.update({
+      overallBreakTime: firestore.FieldValue.increment(breakDuration / 60), // Convert seconds to minutes
+      overallBreakSessions: firestore.FieldValue.increment(1),
+    });
+  };
+
   const navigateToPomodoroTimer = () => {
     // Ensure the timer is not running
     if (intervalRef.current) {
@@ -63,6 +77,7 @@ const PomodoroBreakScreen = ({navigation}) => {
         if (minutes === 0) {
           pauseTimer();
           setTimerEnded(true); // Set timerEnded to true when timer finishes
+          updateBreakSession(); // Update Firestore only when the timer finishes naturally
           return 0;
         } else {
           setMinutes(prevMinutes => prevMinutes - 1);
@@ -73,6 +88,7 @@ const PomodoroBreakScreen = ({navigation}) => {
       }
     });
   };
+
 
   // Effect to handle the timer
   useEffect(() => {
