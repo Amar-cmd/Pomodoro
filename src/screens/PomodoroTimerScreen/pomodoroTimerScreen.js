@@ -63,7 +63,7 @@ const PomodoroTimerScreen = ({navigation}) => {
       key: '4',
       text: 'CAT Mock',
       iconName: 'book',
-      onPress: () => console.log('Settings Pressed!'),
+      onPress: () => navigation.navigate('CatMockScreen'),
     },
     {
       key: '5',
