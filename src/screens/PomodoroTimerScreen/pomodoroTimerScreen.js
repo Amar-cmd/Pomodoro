@@ -46,7 +46,7 @@ const PomodoroTimerScreen = ({navigation}) => {
       key: '1',
       text: 'Statistics',
       iconName: 'stats-chart',
-      onPress: () => navigation.navigate('PomodoroBreak'),
+      onPress: () => navigation.navigate('StatisticsScreen'),
     },
     {
       key: '2',
@@ -70,8 +70,14 @@ const PomodoroTimerScreen = ({navigation}) => {
       key: '5',
       text: 'Logout',
       iconName: 'log-out',
-      onPress: handleLogout, // Use the handleLogout function here
+      onPress: handleLogout,
     },
+    // {
+    //   key: '6',
+    //   text: 'Motivation',
+    //   iconName: 'infinite',
+    //   onPress: handleLogout,
+    // },
     // Add more items as needed
   ];
 

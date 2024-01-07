@@ -13,6 +13,7 @@ import firestore from '@react-native-firebase/firestore';
 import CatMockScreen from './screens/CatMockScreen/CatMockScreen';
 import AnalyticsScreen from './screens/AnalyticsScreen/AnalyticsScreen';
 import {useUser} from './context/UserContext';
+import StatisticsScreen from './screens/StatisticsScreen/StatisticsScreen';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -71,6 +72,11 @@ const AppNavigator = () => {
         // Stack for logged in users
         <>
           <Stack.Screen
+            name="StatisticsScreen"
+            component={StatisticsScreen}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
             name="PomodoroTimer"
             component={PomodoroTimerScreen}
             options={{headerShown: false}}
@@ -95,6 +101,7 @@ const AppNavigator = () => {
             component={AnalyticsScreen}
             options={{headerShown: false}}
           />
+
           {/* Add more screens for logged in user here */}
         </>
       ) : (
