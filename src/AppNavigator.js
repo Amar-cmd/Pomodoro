@@ -7,6 +7,7 @@ import LoginScreen from './screens/LoginScreen/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen/RegisterScreen';
 import auth from '@react-native-firebase/auth';
 import CatMockScreen from './screens/CatMockScreen/CatMockScreen';
+import AnalyticsScreen from './screens/AnalyticsScreen/AnalyticsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,6 +31,11 @@ const AppNavigator = () => {
         // Stack for logged in users
         <>
           <Stack.Screen
+            name="AnalyticsScreen"
+            component={AnalyticsScreen}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
             name="PomodoroTimer"
             component={PomodoroTimerScreen}
             options={{headerShown: false}}
@@ -49,6 +55,7 @@ const AppNavigator = () => {
             component={CatMockScreen}
             options={{headerShown: false}}
           />
+
           {/* Add more screens for logged in user here */}
         </>
       ) : (
