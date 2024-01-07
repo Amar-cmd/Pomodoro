@@ -12,6 +12,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import styles from './style';
 import {usePomodoro} from '../../context/PomodoroContext'; // Adjust the import path as necessary
 import Toast from 'react-native-simple-toast'; // Make sure to install this package
+import auth from '@react-native-firebase/auth';
 
 const OptionButton = ({onPress, iconName, text}) => {
   return (
@@ -49,6 +50,12 @@ const PomodoroTimerScreen = ({navigation}) => {
       text: 'CAT Mock',
       iconName: 'book',
       onPress: () => console.log('Settings Pressed!'),
+    },
+    {
+      key: '5',
+      text: 'Logout',
+      iconName: 'log-out',
+      onPress: handleLogout, // Use the handleLogout function here
     },
     // Add more items as needed
   ];
@@ -123,6 +130,23 @@ const PomodoroTimerScreen = ({navigation}) => {
         return prevSeconds - 1;
       }
     });
+  };
+
+  const handleLogout = () => {
+    auth()
+      .signOut()
+      .then(() => {
+        console.log('User signed out!');
+        // Optionally: navigate the user to the login screen
+        navigation.reset({
+          index: 0,
+          routes: [{name: 'LoginScreen'}],
+        });
+      })
+      .catch(error => {
+        console.error('Logout error:', error);
+        Toast.show('Logout failed. Please try again.', Toast.LONG);
+      });
   };
 
   useEffect(() => {
