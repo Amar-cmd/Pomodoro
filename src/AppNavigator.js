@@ -1,4 +1,6 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
+import {ActivityIndicator, View} from 'react-native';
+
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import PomodoroTimerScreen from './screens/PomodoroTimerScreen/pomodoroTimerScreen';
 import PomodoroBreakScreen from './screens/PomodoroBreakScreen/pomodoroBreakScreen';
@@ -15,6 +17,8 @@ const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
   const {setUser} = useUser(); // Use the setUser function from context
 
   // Fetch user data from Firestore
@@ -34,6 +38,7 @@ const AppNavigator = () => {
   };
 
   useEffect(() => {
+    setIsLoading(true); 
     // Listen for authentication state to change.
     const subscriber = auth().onAuthStateChanged(async firebaseUser => {
       if (firebaseUser) {
@@ -46,10 +51,20 @@ const AppNavigator = () => {
         setUser(null);
         setIsSignedIn(false);
       }
+      setIsLoading(false); 
     });
     return subscriber; // unsubscribe on unmount
   }, []);
 
+   if (isLoading) {
+     // Display a loading indicator while checking authentication state
+     return (
+       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+         <ActivityIndicator size="large" color='#00818E'/>
+       </View>
+     );
+   }
+  
   return (
     <Stack.Navigator>
       {isSignedIn ? (
