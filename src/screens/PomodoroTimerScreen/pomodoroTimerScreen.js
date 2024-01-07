@@ -167,13 +167,22 @@ const PomodoroTimerScreen = ({navigation}) => {
     const endTime = Date.now(); // End time is the current time
     const sessionDuration = initialMinutes * 60 * 1000; // Duration of the session in milliseconds
 
-    // Add the session to the user's pomodoros subcollection
-    const pomodoroRef = firestore()
-      .collection('users')
-      .doc(currentUserId)
-      .collection('pomodoros')
-      .doc();
+    // Define the userRef here within the function scope
+    const userRef = firestore().collection('users').doc(currentUserId);
 
+    // Only proceed if it's a work session
+    if (type === 'work') {
+      // Update the overall study time and sessions in the user's document
+      userRef.update({
+        overallStudyTime: firestore.FieldValue.increment(
+          sessionDuration / 60000,
+        ), // Convert ms to minutes
+        overallStudySessions: firestore.FieldValue.increment(1),
+      });
+    }
+
+    // Add the session to the user's pomodoros subcollection
+    const pomodoroRef = userRef.collection('pomodoros').doc();
     pomodoroRef.set({
       startTime: firestore.Timestamp.fromMillis(endTime - sessionDuration),
       endTime: firestore.Timestamp.fromMillis(endTime),
@@ -187,6 +196,7 @@ const PomodoroTimerScreen = ({navigation}) => {
     updateAggregate('weekly', totalTime, label, endTime - sessionDuration);
     updateAggregate('monthly', totalTime, label, endTime - sessionDuration);
   };
+
 
 
   // Function to update daily, weekly, and monthly aggregates

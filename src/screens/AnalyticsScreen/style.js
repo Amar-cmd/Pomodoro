@@ -1,11 +1,12 @@
-import { StyleSheet } from "react-native";
+import {StyleSheet} from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    // height: Dimensions.get('window').height,
-    height: '100%',
     backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 50,
   },
   toolbar: {
     flexDirection: 'row',
@@ -25,9 +26,11 @@ const styles = StyleSheet.create({
     color: '#00818E',
     alignSelf: 'center',
   },
-  inputContainer: {
-    // width: '40%',
-    padding: 20,
+  sessionContainer: {
+    width: '90%',
+    padding: 10,
+    marginVertical: 10,
+    marginBottom: 20,
     borderBottomStartRadius: 20,
     borderBottomEndRadius: 20,
     borderTopStartRadius: 20,
@@ -40,11 +43,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  total: {
+    fontSize: 30,
+    color: '#00818E',
+    marginTop: 30,
+    borderBottomColor: '#00818E',
+    borderBottomWidth: 2,
+  },
   heading: {
     color: '#00818E',
     fontSize: 20,
   },
-  score: {color: '#FF6B6B', fontSize: 30, marginTop:10, fontWeight:'500'},
+  score: {color: '#FF6B6B', fontSize: 30, marginTop: 10, fontWeight: '500'},
 });
 
 export default styles;
