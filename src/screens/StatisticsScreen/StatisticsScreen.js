@@ -34,6 +34,10 @@ const StatisticsScreen = ({navigation}) => {
     datasets: [{data: [0, 0, 0, 0, 0]}],
   });
   const [pieData, setPieData] = useState([]); // State to store pie chart data
+  const [lineData, setLineData] = useState({
+    labels: ['DI', 'LR', 'QA', 'VARC', 'TA'],
+    datasets: [{data: [0, 0, 0, 0, 0]}],
+  });
 
   const toggleOption = () => {
     setSelectedOption(selectedOption === 'time' ? 'session' : 'time');
@@ -49,7 +53,7 @@ const StatisticsScreen = ({navigation}) => {
 
   const {user} = useUser();
   const currentUser = user;
-
+  
   useEffect(() => {
     if (currentUser) {
       // Define the date string for today
@@ -61,6 +65,7 @@ const StatisticsScreen = ({navigation}) => {
 
       let newBarData = [...barData.datasets[0].data]; // Copy the current data array for the bar chart
       let newPieData = []; // Array to store the new pie chart data
+      let newLineData = [...lineData.datasets[0].data]; // Copy the current data array for the line chart
 
       subjects.forEach((subject, index) => {
         const subjectRef = firestore()
@@ -84,22 +89,24 @@ const StatisticsScreen = ({navigation}) => {
               newPieData.push({
                 name: subject,
                 population: data.session, // Always use session data for pie chart
-                color: subjectColors[subject], // Random color for each segment
+                color: subjectColors[subject], // Use pre-defined color for each segment
                 legendFontColor: '#7F7F7F',
                 legendFontSize: 15,
               });
+
+              // Update line chart data with session data
+              newLineData[index] = data.session;
             } else {
               // If no data for the subject, set it to 0
               newBarData[index] = 0;
               newPieData.push({
                 name: subject,
                 population: 0, // Default to 0 if no session data
-                color: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${
-                  Math.random() * 255
-                }, 1)`,
+                color: subjectColors[subject],
                 legendFontColor: '#7F7F7F',
                 legendFontSize: 15,
               });
+              newLineData[index] = 0; // Set line chart data to 0 as well
             }
 
             // Update the state only after the last subject data is processed
@@ -109,6 +116,10 @@ const StatisticsScreen = ({navigation}) => {
                 datasets: [{data: newBarData}],
               });
               setPieData(newPieData); // Update pie chart data with new session data
+              setLineData({
+                labels: lineData.labels,
+                datasets: [{data: newLineData}],
+              }); // Update line chart data with new session data
             }
           })
           .catch(error => {
@@ -118,16 +129,22 @@ const StatisticsScreen = ({navigation}) => {
     }
   }, [currentUser, selectedOption]);
 
-
   // each value represents a goal ring in Progress chart
   const data = {
     labels: ['DI', 'LR', 'QA', 'VARC', 'TA'], // optional
     data: [0.4, 0.6, 0.7, 0.6, 0.7],
   };
 
-  const lineData = {
-    labels: ['DI', 'LR', 'QA', 'VARC', 'TA'],
-    datasets: [{data: [5, 3, 3, 4, 2]}],
+  const formatDate = date => {
+    let d = new Date(date),
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
   };
 
   const commitsData = [
@@ -145,16 +162,16 @@ const StatisticsScreen = ({navigation}) => {
   ];
 
   // Chart configuration
-const chartConfig = {
-  backgroundGradientFrom: '#fff',
-  backgroundGradientTo: '#fff',
-  decimalPlaces: 2,
-  color: (opacity = 1, index) =>
-    subjectColors[barData.labels[index]] || `#00818E`, // Match bar color with the subject
-  style: {
-    borderRadius: 16,
-  },
-};
+  const chartConfig = {
+    backgroundGradientFrom: '#fff',
+    backgroundGradientTo: '#fff',
+    decimalPlaces: 2,
+    color: (opacity = 1, index) =>
+      subjectColors[barData.labels[index]] || `#00818E`, // Match bar color with the subject
+    style: {
+      borderRadius: 16,
+    },
+  };
 
   // End date is today, start date is 6 months ago
   const endDate = new Date();
@@ -233,7 +250,7 @@ const chartConfig = {
           <Text style={styles.heading}>Test Marks Over Time</Text>
         </View>
 
-        <View style={styles.chart}>
+        {/* <View style={styles.chart}>
           <LineChart
             data={lineData}
             width={screenWidth}
@@ -241,7 +258,7 @@ const chartConfig = {
             chartConfig={chartConfig}
             bezier
           />
-        </View>
+        </View> */}
 
         <View style={styles.headingContainer}>
           <Text style={styles.heading}>Consistency Chart</Text>
