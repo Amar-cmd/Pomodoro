@@ -72,15 +72,16 @@ const AppNavigator = () => {
         // Stack for logged in users
         <>
           <Stack.Screen
-            name="StatisticsScreen"
-            component={StatisticsScreen}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
             name="PomodoroTimer"
             component={PomodoroTimerScreen}
             options={{headerShown: false}}
           />
+          <Stack.Screen
+            name="StatisticsScreen"
+            component={StatisticsScreen}
+            options={{headerShown: false}}
+          />
+
           <Stack.Screen
             name="PomodoroBreak"
             component={PomodoroBreakScreen}
