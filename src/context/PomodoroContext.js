@@ -15,7 +15,7 @@ export const PomodoroProvider = ({children}) => {
     isVibrationOn: false,
     isSilentNotificationOn: false,
     isAutomaticBreakOn: false,
-    labels: ['DI', 'LR', 'QA', 'QUANT', 'TA'],
+    labels: ['DI', 'LR', 'VARC', 'QUANT', 'TA'],
   };
 
   // Initialize state with default settings

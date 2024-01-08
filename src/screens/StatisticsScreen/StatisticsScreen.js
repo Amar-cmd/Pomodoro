@@ -244,6 +244,10 @@ const StatisticsScreen = ({navigation}) => {
           height={220}
           chartConfig={chartConfig}
           bezier
+          withVerticalLabels
+          withInnerLines
+          fromZero={true} // Ensure the chart's y-axis starts from 0
+          // yAxisSuffix={selectedOption === 'time' ? ' min' : ' sess'}
         />
 
         <View style={styles.headingContainer}>
