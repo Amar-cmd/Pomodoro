@@ -107,7 +107,7 @@ const Option = ({title, onToggle, identifier}) => {
 const SettingScreen = ({navigation}) => {
   const {settings, updateSettings} = usePomodoro();
 
-  const labels = ['DI', 'LR', 'QA', 'QUANT', 'TA']; // Add or remove labels as necessary
+  const labels = ['DI', 'LR', 'VARC', 'QUANT', 'TA']; // Add or remove labels as necessary
   const [inputLabel, setInputLabel] = useState(
     settings.currentInputLabel || '',
   );

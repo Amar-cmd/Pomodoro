@@ -232,7 +232,7 @@ const PomodoroTimerScreen = ({navigation}) => {
         .collection(dateString);
 
       // Check if the label is one of the subjects
-      if (['DI', 'LR', 'QA', 'VARC', 'TA'].includes(label)) {
+      if (['DI', 'LR', 'Quant', 'VARC', 'TA'].includes(label)) {
         const subjectRef = aggregatesRef.doc(label);
         subjectRef.get().then(doc => {
           if (doc.exists) {
