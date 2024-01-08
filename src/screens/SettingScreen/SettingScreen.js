@@ -111,7 +111,7 @@ const SettingScreen = ({navigation}) => {
   const [inputLabel, setInputLabel] = useState(
     settings.currentInputLabel || '',
   );
-  
+
   const [isLabelSelected, setIsLabelSelected] = useState(false);
   const [textLength, setTextLength] = useState(inputLabel.length);
 
@@ -130,15 +130,14 @@ const SettingScreen = ({navigation}) => {
   };
 
   const saveSettingsButtonPressed = async () => {
-     handleLabelSubmit(); 
-     await storeSettings(settings);
-     Toast.show('Settings saved!', Toast.LONG);
-     navigation.reset({
-       index: 0,
-       routes: [{name: 'PomodoroTimer'}],
-     });
-   };
-
+    handleLabelSubmit();
+    await storeSettings(settings);
+    Toast.show('Settings saved!', Toast.LONG);
+    navigation.reset({
+      index: 0,
+      routes: [{name: 'PomodoroTimer'}],
+    });
+  };
 
   const goBackButtonPressed = () => {
     navigation.reset({
@@ -172,7 +171,6 @@ const SettingScreen = ({navigation}) => {
       setIsLabelSelected(false);
     }
   };
-
 
   // Update the global settings when the local timerValues change
   useEffect(() => {

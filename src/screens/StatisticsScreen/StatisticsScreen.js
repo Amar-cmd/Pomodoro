@@ -17,7 +17,17 @@ import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import firestore from '@react-native-firebase/firestore';
 import {useUser} from '../../context/UserContext';
+import {usePomodoro} from '../../context/PomodoroContext'; // Import usePomodoro
+
 const screenWidth = Dimensions.get('window').width;
+
+const LABEL_GOALS = {
+  DI: 3,
+  LR: 3,
+  QA: 5,
+  VARC: 6,
+  TA: 2,
+};
 
 const subjectColors = {
   DI: '#F3A683',
@@ -38,6 +48,10 @@ const StatisticsScreen = ({navigation}) => {
     labels: ['DI', 'LR', 'QA', 'VARC', 'TA'],
     datasets: [{data: [0, 0, 0, 0, 0]}],
   });
+  const [completionData, setCompletionData] = useState({
+    labels: Object.keys(LABEL_GOALS), // Add labels corresponding to the goals
+    data: Object.values(LABEL_GOALS).map(() => 0),
+  });
 
   const toggleOption = () => {
     setSelectedOption(selectedOption === 'time' ? 'session' : 'time');
@@ -52,8 +66,9 @@ const StatisticsScreen = ({navigation}) => {
   };
 
   const {user} = useUser();
+
   const currentUser = user;
-  
+
   useEffect(() => {
     if (currentUser) {
       // Define the date string for today
@@ -129,11 +144,57 @@ const StatisticsScreen = ({navigation}) => {
     }
   }, [currentUser, selectedOption]);
 
+  useEffect(() => {
+    if (currentUser) {
+      const today = new Date();
+      const dateString = `${today.getFullYear()}-${
+        today.getMonth() + 1
+      }-${today.getDate()}`;
+
+      const newCompletionData = [...completionData.data];
+
+      Object.keys(LABEL_GOALS).forEach((label, index) => {
+        const subjectRef = firestore()
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('aggregates')
+          .doc('daily')
+          .collection(dateString)
+          .doc(label);
+
+        subjectRef
+          .get()
+          .then(doc => {
+            if (doc.exists) {
+              const data = doc.data();
+              const sessionsCompleted = data.session || 0;
+              const goal = LABEL_GOALS[label];
+
+              // Calculate completion percentage (capped at 1)
+              const completionPercentage = Math.min(
+                sessionsCompleted / goal,
+                1,
+              );
+
+              newCompletionData[index] = completionPercentage;
+            }
+
+            if (index === Object.keys(LABEL_GOALS).length - 1) {
+              setCompletionData({
+                labels: Object.keys(LABEL_GOALS),
+                data: newCompletionData,
+              });
+              console.log(newCompletionData);
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching data for label:', label, error);
+          });
+      });
+    }
+  }, [currentUser, selectedOption]);
+
   // each value represents a goal ring in Progress chart
-  const data = {
-    labels: ['DI', 'LR', 'QA', 'VARC', 'TA'], // optional
-    data: [0.4, 0.6, 0.7, 0.6, 0.7],
-  };
 
   const formatDate = date => {
     let d = new Date(date),
@@ -162,21 +223,30 @@ const StatisticsScreen = ({navigation}) => {
   ];
 
   // Chart configuration
+  // Chart configuration
   const chartConfig = {
     backgroundGradientFrom: '#fff',
     backgroundGradientTo: '#fff',
     decimalPlaces: 2,
-    color: (opacity = 1, index) =>
-      subjectColors[barData.labels[index]] || `#00818E`, // Match bar color with the subject
+    color: (opacity = 1) => `rgba(0, 139, 142, ${opacity})`, // Bright green color with adjustable opacity
     style: {
       borderRadius: 16,
     },
+    // Add this to change the background color of the progress chart
+    backgroundGradientFromOpacity: 0, // Transparent background
+    fillShadowGradient: '#FF6384', // Pink color for the progress ring
+    fillShadowGradientOpacity: 1,
   };
 
   // End date is today, start date is 6 months ago
   const endDate = new Date();
   const startDate = new Date();
   startDate.setMonth(endDate.getMonth() - 6);
+
+  const isDataValid =
+    completionData.data &&
+    Array.isArray(completionData.data) &&
+    completionData.data.some(val => val > 0);
 
   return (
     <ScrollView>
@@ -278,15 +348,18 @@ const StatisticsScreen = ({navigation}) => {
         <View style={styles.headingContainer}>
           <Text style={styles.heading}>Goal Completion</Text>
         </View>
-        <ProgressChart
-          data={data}
-          width={screenWidth}
-          height={220}
-          strokeWidth={16}
-          radius={32}
-          chartConfig={chartConfig}
-          hideLegend={false}
-        />
+        {isDataValid && (
+          <ProgressChart
+            key={JSON.stringify(completionData)}
+            data={completionData}
+            width={screenWidth}
+            height={220}
+            // strokeWidth={32} // Increased stroke width
+            radius={32}
+            chartConfig={chartConfig}
+            // hideLegend={true} // Try toggling the legend visibility
+          />
+        )}
       </View>
     </ScrollView>
   );

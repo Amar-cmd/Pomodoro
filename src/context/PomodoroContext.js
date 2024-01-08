@@ -16,6 +16,13 @@ export const PomodoroProvider = ({children}) => {
     isSilentNotificationOn: false,
     isAutomaticBreakOn: false,
     labels: ['DI', 'LR', 'VARC', 'QUANT', 'TA'],
+    labelInputs: {
+      DI: '3',
+      LR: '3',
+      QA: '5',
+      VARC: '6',
+      TA: '2',
+    },
   };
 
   // Initialize state with default settings
