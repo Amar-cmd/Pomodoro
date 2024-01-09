@@ -151,7 +151,8 @@ const SettingScreen = ({navigation}) => {
     setTextLength(label.length); // Update the character count
     setIsLabelSelected(true); // Indicate that a label was just selected
     updateSettings('currentInputLabel', label); // Update globally
-    console.log(label); // Log the label to the console
+    // console.log(label); // Log the label to the console
+    Toast.show('Label Set!', Toast.LONG);
   };
 
   const handleLabelSubmit = () => {
@@ -202,6 +203,7 @@ const SettingScreen = ({navigation}) => {
 
   useEffect(() => {
     updateSettings('isAutomaticBreakOn', isAutomaticBreakOn);
+    Toast.show('Automatic Break Setting Updated!', Toast.SHORT);
   }, [isAutomaticBreakOn]);
 
   useEffect(() => {
@@ -236,15 +238,15 @@ const SettingScreen = ({navigation}) => {
           keyName="pomodoroTimer"
         />
         <Cell
-          cellHeading="Short Break Timer"
+          cellHeading="Break Timer"
           onValueChange={values => handleCellChange('shortBreakTimer', values)}
           keyName="shortBreakTimer"
         />
-        <Cell
+        {/* <Cell
           cellHeading="Long Break Timer"
           onValueChange={values => handleCellChange('longBreakTimer', values)}
           keyName="longBreakTimer"
-        />
+        /> */}
       </View>
       {/* Section 2  */}
       <View style={styles.sectionTwo}>
