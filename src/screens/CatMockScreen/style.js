@@ -67,6 +67,62 @@ const styles = StyleSheet.create({
     padding: 20,
     alignSelf: 'center',
   },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#0006',
+  },
+  modalView: {
+    width: '80%',
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#00818E',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 20,
+    color: '#00818E',
+  },
+  modalButton: {
+    width: '50%',
+    backgroundColor: '#00818E',
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+    marginBottom: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: 16,
+  },
+  input: {
+    backgroundColor: '#EBFFFE',
+    width: '20%',
+    borderColor: '#00818E',
+    borderWidth: 1,
+  },
+  okButtonText: {
+    backgroundColor: '#00818E',
+    color: '#fff',
+    paddingHorizontal: 25,
+    paddingVertical: 10,
+    marginTop:10,
+  },
 });
 
 export default styles;

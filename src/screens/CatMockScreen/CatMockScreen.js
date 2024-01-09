@@ -1,7 +1,18 @@
 import React, {useState, useEffect} from 'react';
-import {Text, TouchableOpacity, View, Alert} from 'react-native';
+import {
+  Text,
+  TouchableOpacity,
+  View,
+  Alert,
+  Modal,
+  TextInput,
+} from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import firestore from '@react-native-firebase/firestore';
+import { useUser } from '../../context/UserContext';
+import Toast from 'react-native-simple-toast';
 
 const Cell = ({cellHeading, time}) => {
   return (
@@ -15,15 +26,19 @@ const Cell = ({cellHeading, time}) => {
 };
 
 const CatMockScreen = ({navigation}) => {
-  const initialVarcTime = 2400; 
-  const initialDilrTime = 2400; 
-  const initialQaTime = 2400; 
+  const {user} = useUser();
+  console.log(user);
+  const initialVarcTime = 1;
+  const initialDilrTime = 1;
+  const initialQaTime = 1;
 
   const [varcTime, setVarcTime] = useState(initialVarcTime);
   const [dilrTime, setDilrTime] = useState(initialDilrTime);
   const [qaTime, setQaTime] = useState(initialQaTime);
   const [activeTimer, setActiveTimer] = useState(null);
   const [alertShown, setAlertShown] = useState(false); // New state to track if alert has been shown
+  const [customAlertVisible, setCustomAlertVisible] = useState(false);
+  const [inputValue, setInputValue] = useState('');
 
   const resetTimers = () => {
     setVarcTime(initialVarcTime);
@@ -31,6 +46,38 @@ const CatMockScreen = ({navigation}) => {
     setQaTime(initialQaTime);
     setActiveTimer(null); // Reset the active timer
     setAlertShown(false); // Reset the alert shown state
+  };
+
+  const storeMarks = () => {
+    // Check if inputValue is a valid number
+    if (!isNaN(inputValue)) {
+      const mark = parseInt(inputValue);
+      // Update Firestore document
+      firestore()
+        .collection('users')
+        .doc(user.uid) // Use the UID of the logged in user
+        .update({
+          marks: firestore.FieldValue.arrayUnion(mark),
+        })
+        .then(() => {
+          Toast.show('Marks updated successfully', Toast.SHORT);
+        })
+        .catch(error => {
+          Alert.alert('Error updating marks', error);
+        });
+    } else {
+      Alert.alert('Invalid Input', 'Please enter a valid number');
+    }
+  };
+
+  const handleMarksEnterPress = () => {
+    console.log(inputValue); // Log the input value
+    storeMarks();
+    setCustomAlertVisible(false); // Hide the modal
+  };
+
+  const showCustomModal = () => {
+    setCustomAlertVisible(true);
   };
 
   const startPress = () => {
@@ -89,6 +136,7 @@ const CatMockScreen = ({navigation}) => {
         Alert.alert('Time is up!', 'All sections are complete.', [
           {text: 'OK', onPress: resetTimers}, // Reset timers when acknowledged
         ]);
+        // setCustomAlertVisible(true);
       }
     }
 
@@ -111,7 +159,15 @@ const CatMockScreen = ({navigation}) => {
         )}
 
         <Text style={styles.toolbarHeading}>CAT MOCK MODE</Text>
-        <Text style={styles.toolbarHeading}></Text>
+        <TouchableOpacity onPress={showCustomModal} activeOpacity={0.8}>
+          <View style={styles.toolbarIcon}>
+            <MaterialCommunityIcons
+              name="scoreboard-outline"
+              size={30}
+              color="#00818E"
+            />
+          </View>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.timerContainer}>
@@ -127,6 +183,28 @@ const CatMockScreen = ({navigation}) => {
           </TouchableOpacity>
         </View>
       )}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={customAlertVisible}
+        onRequestClose={() => {
+          setCustomAlertVisible(false);
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Enter Marks Scored.</Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={setInputValue}
+              value={inputValue}
+              keyboardType="numeric"
+            />
+            <TouchableOpacity onPress={handleMarksEnterPress}>
+              <Text style={styles.okButtonText}>ENTER</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
