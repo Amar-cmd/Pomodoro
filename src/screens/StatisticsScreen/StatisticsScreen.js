@@ -194,41 +194,13 @@ const StatisticsScreen = ({navigation}) => {
     }
   }, [currentUser, selectedOption]);
 
-  // each value represents a goal ring in Progress chart
-
-  const formatDate = date => {
-    let d = new Date(date),
-      month = '' + (d.getMonth() + 1),
-      day = '' + d.getDate(),
-      year = d.getFullYear();
-
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
-
-    return [year, month, day].join('-');
-  };
-
-  const commitsData = [
-    {date: '2017-01-02', count: 1},
-    {date: '2017-01-03', count: 2},
-    {date: '2017-01-04', count: 3},
-    {date: '2017-01-05', count: 4},
-    {date: '2017-01-06', count: 5},
-    {date: '2017-01-30', count: 2},
-    {date: '2017-01-31', count: 3},
-    {date: '2017-03-01', count: 2},
-    {date: '2017-04-02', count: 4},
-    {date: '2017-03-05', count: 2},
-    {date: '2017-02-30', count: 4},
-  ];
-
-  // Chart configuration
+ 
   // Chart configuration
   const chartConfig = {
     backgroundGradientFrom: '#fff',
     backgroundGradientTo: '#fff',
     decimalPlaces: 2,
-    color: (opacity = 1) => `rgba(0, 139, 142, ${opacity})`, // Bright green color with adjustable opacity
+    color: (opacity = 1) => `rgba(0, 139, 142, ${opacity})`,
     style: {
       borderRadius: 16,
     },
@@ -334,17 +306,6 @@ const StatisticsScreen = ({navigation}) => {
           />
         </View> */}
 
-        <View style={styles.headingContainer}>
-          <Text style={styles.heading}>Consistency Chart</Text>
-        </View>
-        <ContributionGraph
-          values={commitsData}
-          endDate={new Date('2024-05-03')}
-          numDays={105}
-          width={screenWidth}
-          height={220}
-          chartConfig={chartConfig}
-        />
         <View style={styles.headingContainer}>
           <Text style={styles.heading}>Goal Completion</Text>
         </View>
