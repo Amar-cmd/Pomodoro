@@ -14,7 +14,7 @@ import {usePomodoro} from '../../context/PomodoroContext'; // Adjust the import 
 import Toast from 'react-native-simple-toast'; // Make sure to install this package
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-import {useUser} from '../../context/UserContext'
+import {useUser} from '../../context/UserContext';
 const handleLogout = () => {
   auth()
     .signOut()
@@ -27,7 +27,6 @@ const handleLogout = () => {
       Toast.show('Logout failed. Please try again.', Toast.LONG);
     });
 };
-
 
 const OptionButton = ({onPress, iconName, text}) => {
   return (
@@ -167,6 +166,16 @@ const PomodoroTimerScreen = ({navigation}) => {
     return () => clearInterval(intervalRef.current); // Cleanup on unmount
   }, [isActive, seconds]);
 
+  const getWeekRef = date => {
+    const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+    const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+    const weekNumber = Math.ceil(
+      (pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7,
+    );
+    return `${date.getFullYear()}-W${weekNumber}`;
+  };
+
+
   //! Firestore functions
   // Function to be called when a timer session ends
   const onTimerEnd = (label, type) => {
@@ -195,6 +204,59 @@ const PomodoroTimerScreen = ({navigation}) => {
         .collection('aggregates')
         .doc('daily')
         .collection(dateString);
+
+      const weekRef = getWeekRef(new Date());
+      const weeklyAggregatesRef = userRef
+        .collection('aggregates')
+        .doc('weekly')
+        .collection(weekRef);
+
+      // Correct the monthly reference
+      const monthRef = `${today.getFullYear()}-${today.getMonth() + 1}`;
+      const monthlyAggregatesRef = userRef
+        .collection('aggregates')
+        .doc('monthly')
+        .collection(monthRef);
+
+      // Check if the label is one of the subjects for monthly aggregates
+      if (['DI', 'LR', 'QA', 'VARC', 'TA'].includes(label)) {
+        const monthlySubjectRef = monthlyAggregatesRef.doc(label);
+        monthlySubjectRef.get().then(doc => {
+          if (doc.exists) {
+            // Update existing document
+            monthlySubjectRef.update({
+              session: firestore.FieldValue.increment(1),
+              time: firestore.FieldValue.increment(sessionDuration / 60000), // Convert ms to minutes
+            });
+          } else {
+            // Create a new document if it doesn't exist
+            monthlySubjectRef.set({
+              session: 1,
+              time: sessionDuration / 60000, // Convert ms to minutes
+            });
+          }
+        });
+      }
+
+      // Check if the label is one of the subjects for weekly aggregates
+      if (['DI', 'LR', 'QA', 'VARC', 'TA'].includes(label)) {
+        const weeklySubjectRef = weeklyAggregatesRef.doc(label);
+        weeklySubjectRef.get().then(doc => {
+          if (doc.exists) {
+            // Update existing document
+            weeklySubjectRef.update({
+              session: firestore.FieldValue.increment(1),
+              time: firestore.FieldValue.increment(sessionDuration / 60000), // Convert ms to minutes
+            });
+          } else {
+            // Create a new document if it doesn't exist
+            weeklySubjectRef.set({
+              session: 1,
+              time: sessionDuration / 60000, // Convert ms to minutes
+            });
+          }
+        });
+      }
 
       // Check if the label is one of the subjects
       if (['DI', 'LR', 'QA', 'VARC', 'TA'].includes(label)) {
@@ -232,7 +294,6 @@ const PomodoroTimerScreen = ({navigation}) => {
     updateAggregate('weekly', totalTime, label, endTime - sessionDuration);
     updateAggregate('monthly', totalTime, label, endTime - sessionDuration);
   };
-
 
   // Function to update daily, weekly, and monthly aggregates
   const updateAggregate = (aggregateType, time, label, startTime) => {
