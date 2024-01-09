@@ -55,10 +55,57 @@ const StatisticsScreen = ({navigation}) => {
     labels: ['DI', 'LR', 'QA', 'VARC', 'TA'],
     datasets: [{data: [0, 0, 0, 0, 0]}],
   });
+  // const [testMarks, setTestMarks] = useState([]);
+  // Initialize testMarks as an object with the expected structure
+  const [testMarks, setTestMarks] = useState({
+    labels: [],
+    datasets: [{data: []}],
+  });
+
+  useEffect(() => {
+    if (currentUser) {
+      setIsLoading(true);
+      const userDocRef = firestore().collection('users').doc(currentUser.uid);
+
+      userDocRef
+        .get()
+        .then(doc => {
+          if (doc.exists) {
+            const userData = doc.data();
+            const marks = userData.marks || [];
+            // Format the data for the LineChart
+            const formattedData = {
+              labels: marks.map((_, index) => `${index + 1}`),
+              datasets: [{data: marks}],
+            };
+
+            setTestMarks(formattedData); // Set the state
+            setIsLoading(false);
+            console.log(testMarks);
+            console.log(testMarks.datasets);
+            console.log(testMarks.labels);
+
+          } else {
+            console.log('Document does not exist');
+            setIsLoading(false);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching test marks:', error);
+          setIsLoading(false);
+        });
+    }
+  }, [currentUser]);
+
   const [completionData, setCompletionData] = useState({
     labels: Object.keys(LABEL_GOALS), // Add labels corresponding to the goals
     data: Object.values(LABEL_GOALS).map(() => 0),
   });
+
+  const data = {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+    datasets: [{data: [20, 45, 28, 80, 99, 43]}],
+  };
 
   const toggleOption = () => {
     setSelectedOption(selectedOption === 'time' ? 'session' : 'time');
@@ -224,7 +271,6 @@ const StatisticsScreen = ({navigation}) => {
             console.error('Error fetching data for label:', label, error);
           });
       });
-      
     }
   }, [currentUser, selectedOption]);
 
@@ -232,6 +278,12 @@ const StatisticsScreen = ({navigation}) => {
   useEffect(() => {
     setSelectedPeriod('Daily');
   }, []);
+
+  
+  // const testMarksData = {
+  //   labels: testMarks.map((_, index) => `Test ${index + 1}`),
+  //   datasets: [{data: testMarks}],
+  // };
 
   // Chart configuration
   const chartConfig = {
@@ -268,7 +320,9 @@ const StatisticsScreen = ({navigation}) => {
             </View>
           </TouchableOpacity>
 
-          <Text style={styles.toolbarHeading}>Statistics ({selectedPeriod})</Text>
+          <Text style={styles.toolbarHeading}>
+            Statistics ({selectedPeriod})
+          </Text>
           <TouchableOpacity onPress={() => setModalVisible(true)}>
             <View style={styles.toolbarIcon}>
               <Ionicons
@@ -349,15 +403,23 @@ const StatisticsScreen = ({navigation}) => {
           <Text style={styles.heading}>Test Marks Over Time</Text>
         </View>
 
-        {/* <View style={styles.chart}>
-          <LineChart
-            data={lineData}
-            width={screenWidth}
-            height={220}
-            chartConfig={chartConfig}
-            bezier
-          />
-        </View> */}
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#00818E" />
+        ) : (
+          testMarks.labels.length > 0 &&
+          testMarks.datasets[0].data.length > 0 && (
+            <View style={styles.chart}>
+              <LineChart
+                data={testMarks}
+                width={screenWidth}
+                height={220}
+                chartConfig={chartConfig}
+                bezier
+                fromZero={true}
+              />
+            </View>
+          )
+        )}
 
         <View style={styles.headingContainer}>
           <Text style={styles.heading}>Goal Completion</Text>
