@@ -5,6 +5,9 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
+  Modal,
+  TouchableWithoutFeedback,
+  ActivityIndicator,
 } from 'react-native';
 import {
   BarChart,
@@ -38,6 +41,10 @@ const subjectColors = {
 };
 
 const StatisticsScreen = ({navigation}) => {
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState('Daily');
+  const [isLoading, setIsLoading] = useState(false); // State for loading status
+
   const [selectedOption, setSelectedOption] = useState('time'); // Initial value is 'time'
   const [barData, setBarData] = useState({
     labels: ['DI', 'LR', 'QA', 'VARC', 'TA'],
@@ -57,37 +64,69 @@ const StatisticsScreen = ({navigation}) => {
     setSelectedOption(selectedOption === 'time' ? 'session' : 'time');
   };
 
+  // Handle period selection
+  const handlePeriodSelection = period => {
+    setSelectedPeriod(period);
+    setModalVisible(false);
+  };
+
   const goBack = () => {
     navigation.reset({
       index: 0,
       routes: [{name: 'PomodoroTimer'}],
     });
-    // Add your Firestore fetch logic here based on selectedOption
   };
 
   const {user} = useUser();
 
   const currentUser = user;
 
+  const getWeekRef = date => {
+    const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+    const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+    const weekNumber = Math.ceil(
+      (pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7,
+    );
+    return `${date.getFullYear()}-W${weekNumber}`;
+  };
+
   useEffect(() => {
     if (currentUser) {
-      // Define the date string for today
+      setIsLoading(true);
       const today = new Date();
-      const dateString = `${today.getFullYear()}-${
-        today.getMonth() + 1
-      }-${today.getDate()}`;
-      const subjects = ['DI', 'LR', 'QA', 'VARC', 'TA'];
+      let dateString;
+      let collectionPath;
 
-      let newBarData = [...barData.datasets[0].data]; // Copy the current data array for the bar chart
-      let newPieData = []; // Array to store the new pie chart data
-      let newLineData = [...lineData.datasets[0].data]; // Copy the current data array for the line chart
+      switch (selectedPeriod) {
+        case 'Daily':
+          dateString = `${today.getFullYear()}-${
+            today.getMonth() + 1
+          }-${today.getDate()}`;
+          collectionPath = 'daily';
+          break;
+        case 'Weekly':
+          dateString = getWeekRef(today);
+          collectionPath = 'weekly';
+          break;
+        case 'Monthly':
+          dateString = `${today.getFullYear()}-${today.getMonth() + 1}`;
+          collectionPath = 'monthly';
+          break;
+        default:
+          return; // Exit the useEffect if no period is selected
+      }
+
+      const subjects = ['DI', 'LR', 'QA', 'VARC', 'TA'];
+      let newBarData = [...barData.datasets[0].data];
+      let newPieData = [];
+      let newLineData = [...lineData.datasets[0].data];
 
       subjects.forEach((subject, index) => {
         const subjectRef = firestore()
           .collection('users')
           .doc(currentUser.uid)
           .collection('aggregates')
-          .doc('daily')
+          .doc(collectionPath)
           .collection(dateString)
           .doc(subject);
 
@@ -96,45 +135,39 @@ const StatisticsScreen = ({navigation}) => {
           .then(doc => {
             if (doc.exists) {
               const data = doc.data();
-              // Update bar chart data based on the selected option (time or session)
               newBarData[index] =
                 selectedOption === 'time' ? data.time : data.session;
-
-              // Update pie chart data with session data only
               newPieData.push({
                 name: subject,
-                population: data.session, // Always use session data for pie chart
-                color: subjectColors[subject], // Use pre-defined color for each segment
-                legendFontColor: '#7F7F7F',
-                legendFontSize: 15,
-              });
-
-              // Update line chart data with session data
-              newLineData[index] = data.session;
-            } else {
-              // If no data for the subject, set it to 0
-              newBarData[index] = 0;
-              newPieData.push({
-                name: subject,
-                population: 0, // Default to 0 if no session data
+                population: data.session,
                 color: subjectColors[subject],
                 legendFontColor: '#7F7F7F',
                 legendFontSize: 15,
               });
-              newLineData[index] = 0; // Set line chart data to 0 as well
+              newLineData[index] = data.session;
+            } else {
+              newBarData[index] = 0;
+              newPieData.push({
+                name: subject,
+                population: 0,
+                color: subjectColors[subject],
+                legendFontColor: '#7F7F7F',
+                legendFontSize: 15,
+              });
+              newLineData[index] = 0;
             }
 
-            // Update the state only after the last subject data is processed
             if (index === subjects.length - 1) {
               setBarData({
                 labels: barData.labels,
                 datasets: [{data: newBarData}],
               });
-              setPieData(newPieData); // Update pie chart data with new session data
+              setPieData(newPieData);
               setLineData({
                 labels: lineData.labels,
                 datasets: [{data: newLineData}],
-              }); // Update line chart data with new session data
+              });
+              setIsLoading(false);
             }
           })
           .catch(error => {
@@ -142,7 +175,7 @@ const StatisticsScreen = ({navigation}) => {
           });
       });
     }
-  }, [currentUser, selectedOption]);
+  }, [currentUser, selectedOption, selectedPeriod]);
 
   useEffect(() => {
     if (currentUser) {
@@ -191,10 +224,15 @@ const StatisticsScreen = ({navigation}) => {
             console.error('Error fetching data for label:', label, error);
           });
       });
+      
     }
   }, [currentUser, selectedOption]);
 
- 
+  // Set the default period to 'Daily' every time the component mounts
+  useEffect(() => {
+    setSelectedPeriod('Daily');
+  }, []);
+
   // Chart configuration
   const chartConfig = {
     backgroundGradientFrom: '#fff',
@@ -230,8 +268,16 @@ const StatisticsScreen = ({navigation}) => {
             </View>
           </TouchableOpacity>
 
-          <Text style={styles.toolbarHeading}>Statistics</Text>
-          <Text></Text>
+          <Text style={styles.toolbarHeading}>Statistics ({selectedPeriod})</Text>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <View style={styles.toolbarIcon}>
+              <Ionicons
+                name="calendar-clear-outline"
+                size={30}
+                color="#00818E"
+              />
+            </View>
+          </TouchableOpacity>
         </View>
         <View style={styles.headingContainer}>
           <Text style={styles.heading}>Subject-Wise Study Comparison</Text>
@@ -239,58 +285,65 @@ const StatisticsScreen = ({navigation}) => {
             <Text style={styles.toggleText}>{selectedOption}</Text>
           </TouchableOpacity>
         </View>
-
-        <View style={styles.chart}>
-          <BarChart
-            data={barData}
-            width={screenWidth}
-            height={220}
-            chartConfig={chartConfig}
-            verticalLabelRotation={30}
-            fromZero={true}
-            segments={5}
-            formatYLabel={y =>
-              `${y} ${selectedOption === 'time' ? 'min' : 'sess'}`
-            }
-          />
-        </View>
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#00818E" /> // Loading indicator
+        ) : (
+          <View style={styles.chart}>
+            <BarChart
+              data={barData}
+              width={screenWidth}
+              height={220}
+              chartConfig={chartConfig}
+              verticalLabelRotation={30}
+              fromZero={true}
+              segments={5}
+              formatYLabel={y =>
+                `${y} ${selectedOption === 'time' ? 'min' : 'sess'}`
+              }
+            />
+          </View>
+        )}
 
         <View style={styles.headingContainer}>
           <Text style={styles.heading}>Subject Distribution</Text>
         </View>
 
-        <View style={styles.chart}>
-          <PieChart
-            data={pieData}
-            width={screenWidth}
-            height={220}
-            chartConfig={chartConfig}
-            accessor={'population'}
-            backgroundColor={'transparent'}
-            paddingLeft={'15'}
-            center={[10, 10]}
-            absolute
-          />
-        </View>
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#00818E" /> // Loading indicator
+        ) : (
+          <View style={styles.chart}>
+            <PieChart
+              data={pieData}
+              width={screenWidth}
+              height={220}
+              chartConfig={chartConfig}
+              accessor={'population'}
+              backgroundColor={'transparent'}
+              paddingLeft={'15'}
+              center={[10, 10]}
+              absolute
+            />
+          </View>
+        )}
 
         <View style={styles.headingContainer}>
           <Text style={styles.heading}>Study Trend Over Time</Text>
-          <TouchableOpacity style={styles.toggleButton} onPress={toggleOption}>
-            <Text style={styles.toggleText}>{selectedOption}</Text>
-          </TouchableOpacity>
         </View>
-
-        <LineChart
-          data={lineData}
-          width={screenWidth}
-          height={220}
-          chartConfig={chartConfig}
-          bezier
-          withVerticalLabels
-          withInnerLines
-          fromZero={true} // Ensure the chart's y-axis starts from 0
-          // yAxisSuffix={selectedOption === 'time' ? ' min' : ' sess'}
-        />
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#00818E" /> // Loading indicator
+        ) : (
+          <LineChart
+            data={lineData}
+            width={screenWidth}
+            height={220}
+            chartConfig={chartConfig}
+            bezier
+            withVerticalLabels
+            withInnerLines
+            fromZero={true} // Ensure the chart's y-axis starts from 0
+            // yAxisSuffix={selectedOption === 'time' ? ' min' : ' sess'}
+          />
+        )}
 
         <View style={styles.headingContainer}>
           <Text style={styles.heading}>Test Marks Over Time</Text>
@@ -309,18 +362,48 @@ const StatisticsScreen = ({navigation}) => {
         <View style={styles.headingContainer}>
           <Text style={styles.heading}>Goal Completion</Text>
         </View>
-        {isDataValid && (
+        {isLoading && (
+          <ActivityIndicator size="large" color="#00818E" /> // Loading indicator
+        )}
+        {!isLoading && isDataValid && (
           <ProgressChart
             key={JSON.stringify(completionData)}
             data={completionData}
             width={screenWidth}
             height={220}
-            // strokeWidth={32} // Increased stroke width
+            // strokeWidth={16} // Increased stroke width
             radius={32}
             chartConfig={chartConfig}
-            // hideLegend={true} // Try toggling the legend visibility
           />
         )}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={isModalVisible}
+          onRequestClose={() => setModalVisible(false)}>
+          <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+            <View style={styles.centeredView}>
+              <View style={styles.modalView}>
+                <Text style={styles.modalText}>Period</Text>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => handlePeriodSelection('Daily')}>
+                  <Text style={styles.buttonText}>Daily</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => handlePeriodSelection('Weekly')}>
+                  <Text style={styles.buttonText}>Weekly</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => handlePeriodSelection('Monthly')}>
+                  <Text style={styles.buttonText}>Monthly</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
       </View>
     </ScrollView>
   );
