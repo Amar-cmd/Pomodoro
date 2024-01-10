@@ -5,12 +5,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f7f7f7',
+    backgroundColor: '#fff',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: '#00818E',
   },
   input: {
     width: '80%',
@@ -20,6 +21,7 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 5,
     backgroundColor: '#fff',
+    color: '#00818E',
   },
   button: {
     width: '80%',

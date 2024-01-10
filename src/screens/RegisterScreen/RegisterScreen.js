@@ -4,11 +4,12 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
+  ActivityIndicator,
+  StatusBar,
 } from 'react-native';
-import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import {firebase, db} from '../../../firebase';
+import Toast from 'react-native-simple-toast';
 
 import styles from './style';
 const RegisterScreen = ({navigation}) => {
@@ -16,10 +17,12 @@ const RegisterScreen = ({navigation}) => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false); // State to track loading
 
   const handleRegister = () => {
+    setLoading(true);
     if (!email || !password || !username) {
-      alert('Please fill all fields');
+      Toast.show('Please fill all fields', Toast.SHORT);
       return;
     }
 
@@ -44,45 +47,58 @@ const RegisterScreen = ({navigation}) => {
           .doc(user.uid)
           .set(userProfile)
           .then(() => {
-            console.log('User profile created!');
-            navigation.navigate('PomodoroTimer'); // Navigate to the main screen after registration
+            Toast.show('User profile created!', Toast.SHORT);
+            setLoading(false);
+
+            // navigation.navigate('PomodoroTimer'); // Navigate to the main screen after registration
           });
       })
       .catch(error => {
-        console.error('Registration error:', error.message);
         alert('Failed to register: ' + error.message);
+        setLoading(false);
       });
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Create Account</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
-      />
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Register</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('LoginScreen')}>
-        <Text style={styles.linkText}>Already have an account? Login</Text>
-      </TouchableOpacity>
+      {loading ? (
+        <ActivityIndicator size="large" color="#00818E" /> // Loading indicator
+      ) : (
+        <>
+          <Text style={styles.title}>Create Account</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            placeholderTextColor="#aaa"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Username"
+            value={username}
+            onChangeText={setUsername}
+            placeholderTextColor="#aaa"
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+            placeholderTextColor="#aaa"
+          />
+          <TouchableOpacity style={styles.button} onPress={handleRegister}>
+            <Text style={styles.buttonText}>Register</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('LoginScreen')}>
+            <Text style={styles.linkText}>Already have an account? Login</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 };
