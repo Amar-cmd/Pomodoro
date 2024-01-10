@@ -8,12 +8,14 @@ import {
   TextInput,
   StatusBar,
   TouchableWithoutFeedback,
+  Vibration,
 } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import firestore from '@react-native-firebase/firestore';
 import { useUser } from '../../context/UserContext';
+import { usePomodoro } from '../../context/PomodoroContext';
 import Toast from 'react-native-simple-toast';
 
 const Cell = ({cellHeading, time}) => {
@@ -29,9 +31,10 @@ const Cell = ({cellHeading, time}) => {
 
 const CatMockScreen = ({navigation}) => {
   const {user} = useUser();
-  const initialVarcTime = 2400;
-  const initialDilrTime = 2400;
-  const initialQaTime = 2400;
+  const {settings} = usePomodoro();
+  const initialVarcTime = 1;
+  const initialDilrTime = 1;
+  const initialQaTime = 1;
 
   const [varcTime, setVarcTime] = useState(initialVarcTime);
   const [dilrTime, setDilrTime] = useState(initialDilrTime);
@@ -133,10 +136,10 @@ const CatMockScreen = ({navigation}) => {
       else if (activeTimer === 'dilr') setActiveTimer('qa');
       else if (activeTimer === 'qa' && !alertShown) {
         setAlertShown(true); // Set alert as shown
+        if (settings.isVibrationOn) Vibration.vibrate(1000);
         Alert.alert('Time is up!', 'All sections are complete.', [
           {text: 'OK', onPress: resetTimers}, // Reset timers when acknowledged
         ]);
-        // setCustomAlertVisible(true);
       }
     }
 

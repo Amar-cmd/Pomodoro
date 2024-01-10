@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Modal,
   FlatList,
+  Vibration,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -14,7 +15,8 @@ import {usePomodoro} from '../../context/PomodoroContext'; // Adjust the import 
 import Toast from 'react-native-simple-toast'; // Make sure to install this package
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-import {useUser} from '../../context/UserContext';
+import { useUser } from '../../context/UserContext';
+
 const handleLogout = () => {
   auth()
     .signOut()
@@ -211,6 +213,7 @@ const PomodoroTimerScreen = ({navigation}) => {
 
   // Function to be called when a timer session ends
   const onTimerEnd = (label, type) => {
+    if (settings.isVibrationOn) Vibration.vibrate(1000);
     const endTime = Date.now(); // End time is the current time
     const sessionDuration = initialMinutes * 60 * 1000; // Duration of the session in milliseconds
 

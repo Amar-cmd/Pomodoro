@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {Text, View, StatusBar, TouchableOpacity} from 'react-native';
+import {Text, View, StatusBar, TouchableOpacity, Vibration} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {usePomodoro} from '../../context/PomodoroContext'; // Adjust the import path as necessary
@@ -77,6 +77,7 @@ const PomodoroBreakScreen = ({navigation}) => {
         if (minutes === 0) {
           pauseTimer();
           setTimerEnded(true); // Set timerEnded to true when timer finishes
+          if (settings.isVibrationOn) Vibration.vibrate(1000);
           updateBreakSession(); // Update Firestore only when the timer finishes naturally
           return 0;
         } else {
