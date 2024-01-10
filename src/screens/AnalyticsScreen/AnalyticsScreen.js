@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {ScrollView, Text, TouchableOpacity, View} from 'react-native';
+import {ScrollView, StatusBar, Text, TouchableOpacity, View} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
@@ -111,6 +111,8 @@ const AnalyticsScreen = ({navigation}) => {
 
   return (
     <>
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+
       <View style={styles.toolbar}>
         <TouchableOpacity onPress={goBack}>
           <View style={styles.toolbarIcon}>

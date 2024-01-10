@@ -8,6 +8,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
   ActivityIndicator,
+  StatusBar,
 } from 'react-native';
 import {
   BarChart,
@@ -313,6 +314,8 @@ const StatisticsScreen = ({navigation}) => {
   return (
     <ScrollView>
       <View style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+
         <View style={styles.toolbar}>
           <TouchableOpacity onPress={goBack}>
             <View style={styles.toolbarIcon}>

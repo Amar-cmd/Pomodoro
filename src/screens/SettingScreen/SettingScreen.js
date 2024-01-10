@@ -1,5 +1,5 @@
 import React, {useState, useRef, useCallback, useEffect} from 'react';
-import {View, TextInput, Text, TouchableOpacity, Switch} from 'react-native';
+import {View, TextInput, Text, TouchableOpacity, Switch, StatusBar} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {usePomodoro} from '../../context/PomodoroContext';
 
@@ -212,6 +212,8 @@ const SettingScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+
       {/* Toolbar  */}
       <View style={styles.toolbar}>
         <TouchableOpacity onPress={goBackButtonPressed}>

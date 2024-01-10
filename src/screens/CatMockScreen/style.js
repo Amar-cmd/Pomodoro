@@ -57,6 +57,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'red',
     backgroundColor: '#00818E',
     alignSelf: 'center',
+    borderRadius: 20,
 
     //   marginHorizontal: '30%',
     // marginBottom:20,
@@ -115,13 +116,16 @@ const styles = StyleSheet.create({
     width: '20%',
     borderColor: '#00818E',
     borderWidth: 1,
+    color: '#00818E',
+    fontSize: 20,
+    textAlign:'center',
   },
   okButtonText: {
     backgroundColor: '#00818E',
     color: '#fff',
     paddingHorizontal: 25,
     paddingVertical: 10,
-    marginTop:10,
+    marginTop: 10,
   },
 });
 

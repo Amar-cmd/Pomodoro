@@ -6,6 +6,7 @@ import {
   Alert,
   Modal,
   TextInput,
+  StatusBar,
 } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -28,9 +29,9 @@ const Cell = ({cellHeading, time}) => {
 const CatMockScreen = ({navigation}) => {
   const {user} = useUser();
   console.log(user);
-  const initialVarcTime = 1;
-  const initialDilrTime = 1;
-  const initialQaTime = 1;
+  const initialVarcTime = 2400;
+  const initialDilrTime = 2400;
+  const initialQaTime = 2400;
 
   const [varcTime, setVarcTime] = useState(initialVarcTime);
   const [dilrTime, setDilrTime] = useState(initialDilrTime);
@@ -145,6 +146,11 @@ const CatMockScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="#fff"
+      />
+
       <View style={styles.toolbar}>
         {!activeTimer ? (
           <TouchableOpacity onPress={goBack} activeOpacity={0.8}>
@@ -198,6 +204,7 @@ const CatMockScreen = ({navigation}) => {
               onChangeText={setInputValue}
               value={inputValue}
               keyboardType="numeric"
+              maxLength={3}
             />
             <TouchableOpacity onPress={handleMarksEnterPress}>
               <Text style={styles.okButtonText}>ENTER</Text>

@@ -13,7 +13,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 8,
-    marginTop: 10,
     backgroundColor: '#fff',
   },
   toolbarIcon: {

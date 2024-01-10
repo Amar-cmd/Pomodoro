@@ -367,6 +367,8 @@ const PomodoroTimerScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+
       <View style={styles.toolbar}>
         <TouchableOpacity onPress={toggleModal}>
           <View style={styles.toolbarIcon}>
