@@ -305,12 +305,12 @@ const SettingScreen = ({navigation}) => {
           identifier="Vibration" // For debugging
         />
 
-        <Option
+        {/* <Option
           title="Silent Notification"
           value={isSilentNotificationOn}
           onToggle={setIsSilentNotificationOn}
           identifier="Silent Notification" // For debugging
-        />
+        /> */}
 
         <Option
           title="Automatic Break"
