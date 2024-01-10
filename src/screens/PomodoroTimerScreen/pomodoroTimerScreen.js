@@ -39,6 +39,12 @@ const OptionButton = ({onPress, iconName, text}) => {
   );
 };
 
+const getCurrentDateFormatted = () => {
+  const today = new Date();
+  return `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+};
+
+
 const PomodoroTimerScreen = ({navigation}) => {
   const buttons = [
     {
@@ -96,7 +102,7 @@ const PomodoroTimerScreen = ({navigation}) => {
   const [isModalVisible, setModalVisible] = useState(false); // State for modal visibility
   const [timerEnded, setTimerEnded] = useState(false); // New state to track if timer ended
 
-  const currentLabel = settings.currentInputLabel || 'Label'; // Default to 'Label' if not set
+  const currentLabel = settings.currentInputLabel || 'DI'; // Default to 'Label' if not set
 
   // Using a ref to track the interval ID
   const intervalRef = useRef(null);
@@ -177,6 +183,32 @@ const PomodoroTimerScreen = ({navigation}) => {
 
 
   //! Firestore functions
+  const fetchSessionCount = async label => {
+    const currentDate = getCurrentDateFormatted();
+    const userId = user.uid; // Assuming 'user' is the currently logged-in user object
+
+    try {
+      const doc = await firestore()
+        .collection('users')
+        .doc(userId)
+        .collection('aggregates')
+        .doc('daily')
+        .collection(currentDate)
+        .doc(label)
+        .get();
+
+      if (doc.exists) {
+        const data = doc.data();
+        return data.session || 0; // Return the session count
+      } else {
+        return 0; // Return 0 if no data found
+      }
+    } catch (error) {
+      console.error('Error fetching session data:', error);
+      return 0; // Return 0 in case of error
+    }
+  };
+
   // Function to be called when a timer session ends
   const onTimerEnd = (label, type) => {
     const endTime = Date.now(); // End time is the current time
@@ -364,6 +396,16 @@ const PomodoroTimerScreen = ({navigation}) => {
       setTimerEnded(false);
     }
   }, [timerEnded, currentLabel, navigation]); // Dependencies array includes timerEnded, currentLabel, and navigation
+
+  useEffect(() => {
+    // Call this function whenever you need to update the rounds (e.g., on component mount or when label changes)
+    const updateRounds = async () => {
+      const sessionCount = await fetchSessionCount(currentLabel);
+      setRounds(sessionCount);
+    };
+
+    updateRounds();
+  }, [currentLabel]);
 
   return (
     <View style={styles.container}>
