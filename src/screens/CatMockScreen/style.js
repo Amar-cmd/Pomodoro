@@ -118,11 +118,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     color: '#00818E',
     fontSize: 20,
-    textAlign:'center',
+    textAlign: 'center',
   },
   okButtonText: {
     backgroundColor: '#00818E',
     color: '#fff',
+    paddingHorizontal: 25,
+    paddingVertical: 10,
+    marginTop: 10,
+  },
+  disabledButton: {
+    // Your styling for the disabled button, e.g., change background color
+    backgroundColor: '#ccc',
+    color: '#0d0d0d',
     paddingHorizontal: 25,
     paddingVertical: 10,
     marginTop: 10,

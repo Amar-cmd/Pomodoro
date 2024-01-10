@@ -7,6 +7,7 @@ import {
   Modal,
   TextInput,
   StatusBar,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -28,7 +29,6 @@ const Cell = ({cellHeading, time}) => {
 
 const CatMockScreen = ({navigation}) => {
   const {user} = useUser();
-  console.log(user);
   const initialVarcTime = 2400;
   const initialDilrTime = 2400;
   const initialQaTime = 2400;
@@ -72,7 +72,6 @@ const CatMockScreen = ({navigation}) => {
   };
 
   const handleMarksEnterPress = () => {
-    console.log(inputValue); // Log the input value
     storeMarks();
     setCustomAlertVisible(false); // Hide the modal
   };
@@ -146,10 +145,7 @@ const CatMockScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor="#fff"
-      />
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
       <View style={styles.toolbar}>
         {!activeTimer ? (
@@ -190,27 +186,38 @@ const CatMockScreen = ({navigation}) => {
         </View>
       )}
       <Modal
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         visible={customAlertVisible}
         onRequestClose={() => {
           setCustomAlertVisible(false);
         }}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>Enter Marks Scored.</Text>
-            <TextInput
-              style={styles.input}
-              onChangeText={setInputValue}
-              value={inputValue}
-              keyboardType="numeric"
-              maxLength={3}
-            />
-            <TouchableOpacity onPress={handleMarksEnterPress}>
-              <Text style={styles.okButtonText}>ENTER</Text>
-            </TouchableOpacity>
+        <TouchableWithoutFeedback onPress={() => setCustomAlertVisible(false)}>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <Text style={styles.modalText}>Enter Marks Scored.</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={setInputValue}
+                value={inputValue}
+                keyboardType="numeric"
+                maxLength={3}
+              />
+              <TouchableOpacity
+                onPress={handleMarksEnterPress}
+                disabled={inputValue.trim() === ''}>
+                <Text
+                  style={[
+                    inputValue.trim() === ''
+                      ? styles.disabledButton
+                      : styles.okButtonText,
+                  ]}>
+                  ENTER
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
     </View>
   );
