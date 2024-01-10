@@ -79,13 +79,6 @@ const PomodoroTimerScreen = ({navigation}) => {
       iconName: 'log-out',
       onPress: handleLogout,
     },
-    // {
-    //   key: '6',
-    //   text: 'Motivation',
-    //   iconName: 'infinite',
-    //   onPress: handleLogout,
-    // },
-    // Add more items as needed
   ];
 
   const {settings} = usePomodoro();

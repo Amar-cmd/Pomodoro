@@ -32,9 +32,9 @@ const Cell = ({cellHeading, time}) => {
 const CatMockScreen = ({navigation}) => {
   const {user} = useUser();
   const {settings} = usePomodoro();
-  const initialVarcTime = 1;
-  const initialDilrTime = 1;
-  const initialQaTime = 1;
+  const initialVarcTime = 2400;
+  const initialDilrTime = 2400;
+  const initialQaTime = 2400;
 
   const [varcTime, setVarcTime] = useState(initialVarcTime);
   const [dilrTime, setDilrTime] = useState(initialDilrTime);
