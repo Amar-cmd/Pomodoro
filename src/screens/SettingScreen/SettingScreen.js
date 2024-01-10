@@ -109,7 +109,7 @@ const SettingScreen = ({navigation}) => {
 
   const labels = ['DI', 'LR', 'VARC', 'QA', 'TA']; // Add or remove labels as necessary
   const [inputLabel, setInputLabel] = useState(
-    settings.currentInputLabel || '',
+    settings.currentInputLabel || 'DI',
   );
 
   const [isLabelSelected, setIsLabelSelected] = useState(false);
@@ -252,10 +252,22 @@ const SettingScreen = ({navigation}) => {
       </View>
       {/* Section 2  */}
       <View style={styles.sectionTwo}>
+        {/* <View style={styles.separator}></View> */}
+        <Text
+          style={{
+            marginVertical: 10,
+            padding: 5,
+            fontSize: 20,
+            color: '#00818E',
+          }}>
+          Add Label
+        </Text>
         <View style={styles.separator}></View>
+
         <TextInput
           style={styles.labelInput}
           placeholder="Add Task"
+          placeholderTextColor="#aaa"
           maxLength={MAX_LABEL_LENGTH}
           onChangeText={handleInputChange} // Use the updated handleInputChange
           value={inputLabel} // Display the current input label
@@ -280,6 +292,10 @@ const SettingScreen = ({navigation}) => {
 
       {/* Section 3  */}
       <View style={styles.sectionThree}>
+        {/* <View style={styles.separator} /> */}
+        <Text style={{marginVertical: 10, fontSize: 20, color: '#00818E'}}>
+          Settings
+        </Text>
         <View style={styles.separator} />
 
         <Option
