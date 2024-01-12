@@ -41,4 +41,4 @@ The CAT Exam Preparation Pomodoro App is an innovative tool designed to enhance 
 - *Intuitive Design*: Easy navigation and a clean interface to ensure a distraction-free study environment.
 - *Customization Options*: Personalize the app experience with various themes, timer sounds, and notification settings.
 
-This app is a must-have tool for every CAT aspirant, providing a structured and effective approach to conquering one of the most challenging entrance exams. Get ready to boost your preparation and bring your A-game to the CAT exam!
+This app is a must-have tool for every CAT aspirant, providing a structured and effective approach to conquering one of the most challenging entrance exams.
