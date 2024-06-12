@@ -1,79 +1,44 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
-# Getting Started
+# Pomodoro App for CAT Preparation
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+![Logo](https://github.com/Amar-cmd/Pomodoro/blob/main/Sample%20Images/logo.png?raw=true)
 
-## Step 1: Start the Metro Server
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+# CAT Exam Preparation Pomodoro App
 
-To start Metro, run the following command from the _root_ of your React Native project:
+## Overview
+The CAT Exam Preparation Pomodoro App is an innovative tool designed to enhance the efficiency and effectiveness of studying for the Common Admission Test (CAT). This app integrates the renowned Pomodoro technique with tailored features to help aspirants ace their CAT exam.
 
-```bash
-# using npm
-npm start
+## Key Features
+![App Screenshot](https://github.com/Amar-cmd/Pomodoro/blob/main/Sample%20Images/5.png?raw=true)
+### 1. Dual Timer Modes
+![App Screenshot](https://github.com/Amar-cmd/Pomodoro/blob/main/Sample%20Images/3.png?raw=true)
 
-# OR using Yarn
-yarn start
-```
+- *Exam Mode Timer*: Mirrors the actual CAT exam timing structure, helping students adapt to the real exam scenario.
+- *Regular Pomodoro Timer*: Customizable intervals for focused study sessions and short breaks, based on the classic Pomodoro technique.
 
-## Step 2: Start your Application
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+### 2. Detailed Statistics and Analysis
 
-### For Android
+![App Screenshot](https://github.com/Amar-cmd/Pomodoro/blob/main/Sample%20Images/1.png?raw=true)
 
-```bash
-# using npm
-npm run android
+- *Performance Tracking*: Records each study session, providing insights into time spent on each subject area.
+- *Progress Graphs*: Visual representation of daily, weekly, and monthly study patterns to help identify strengths and areas for improvement.
+- *Focus Analysis*: Offers feedback on focus levels during study sessions, using data from the Pomodoro sessions.
+- *Marks improvement Over Time*: A dedicated graph that displays your Mock Test Marks over time.
 
-# OR using Yarn
-yarn android
-```
+### 3. CAT Exam Specific Features
 
-### For iOS
+![App Screenshot](https://github.com/Amar-cmd/Pomodoro/blob/main/Sample%20Images/4.png?raw=true)
 
-```bash
-# using npm
-npm run ios
+- *Subject-wise Segregation*: Tailored timers and stats for different sections of the CAT exam (Quantitative Ability (QA), Verbal Ability (VARC), Logical Reasoning (DILR) and Test Analysis/Revision (TA)).
+- *Custom Study Plans*: Allows setting specific goals and targets for each CAT exam section.
 
-# OR using Yarn
-yarn ios
-```
+### 4. User-Friendly Interface
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+![App Screenshot](https://github.com/Amar-cmd/Pomodoro/blob/main/Sample%20Images/2.png?raw=true)
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+- *Intuitive Design*: Easy navigation and a clean interface to ensure a distraction-free study environment.
+- *Customization Options*: Personalize the app experience with various themes, timer sounds, and notification settings.
 
-## Step 3: Modifying your App
-
-Now that you have successfully run the app, let's modify it.
-
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
-
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+This app is a must-have tool for every CAT aspirant, providing a structured and effective approach to conquering one of the most challenging entrance exams.
