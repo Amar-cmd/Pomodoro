@@ -16,6 +16,7 @@ import Toast from 'react-native-simple-toast'; // Make sure to install this pack
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import { useUser } from '../../context/UserContext';
+import BackgroundTimer from 'react-native-background-timer';
 
 const handleLogout = () => {
   auth()
@@ -135,7 +136,6 @@ const PomodoroTimerScreen = ({navigation}) => {
   };
 
   // Update the timer every second
-  // Update the timer every second
   const updateTimer = () => {
     setSeconds(prevSeconds => {
       if (prevSeconds === 0) {
@@ -158,14 +158,27 @@ const PomodoroTimerScreen = ({navigation}) => {
   };
 
   // Effect to handle the timer
-  useEffect(() => {
-    if (isActive) {
-      intervalRef.current = setInterval(updateTimer, 1000);
-    } else if (!isActive && seconds !== 0) {
-      clearInterval(intervalRef.current);
-    }
-    return () => clearInterval(intervalRef.current); // Cleanup on unmount
-  }, [isActive, seconds]);
+
+  // ! Old effect
+  // useEffect(() => {
+  //   if (isActive) {
+  //     intervalRef.current = setInterval(updateTimer, 1000);
+  //   } else if (!isActive && seconds !== 0) {
+  //     clearInterval(intervalRef.current);
+  //   }
+  //   return () => clearInterval(intervalRef.current); // Cleanup on unmount
+  // }, [isActive, seconds]);
+
+  // ? New effect
+ useEffect(() => {
+   if (isActive) {
+     intervalRef.current = BackgroundTimer.setInterval(updateTimer, 1000);
+   } else if (!isActive && seconds !== 0) {
+     BackgroundTimer.clearInterval(intervalRef.current);
+   }
+   return () => BackgroundTimer.clearInterval(intervalRef.current); // Cleanup on unmount
+ }, [isActive, seconds]);
+
 
   const getWeekRef = date => {
     const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
@@ -175,7 +188,6 @@ const PomodoroTimerScreen = ({navigation}) => {
     );
     return `${date.getFullYear()}-W${weekNumber}`;
   };
-
 
   //! Firestore functions
   const fetchSessionCount = async label => {
